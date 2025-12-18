@@ -1,0 +1,1111 @@
+2025-12-18 09:56:45.927 +05:30 [INF] Executed DbCommand (13ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-12-18 09:56:46.074 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2025-12-18 09:56:46.110 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2025-12-18 09:56:46.117 +05:30 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2025-12-18 09:56:46.120 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2025-12-18 09:56:46.121 +05:30 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-12-18 09:56:46.123 +05:30 [INF] No migrations were applied. The database is already up to date.
+2025-12-18 09:56:46.263 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Users" AS u)
+2025-12-18 09:56:46.280 +05:30 [INF] User profile is available. Using 'C:\Users\sanja\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-12-18 09:56:46.397 +05:30 [INF] Now listening on: http://[::]:5200
+2025-12-18 09:56:46.398 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-12-18 09:56:46.398 +05:30 [INF] Hosting environment: Production
+2025-12-18 09:56:46.398 +05:30 [INF] Content root path: C:\Users\sanja\OneDrive\Desktop\Coding\Web Dev\Projects\Hazard-Eye\backend\hazardEye.API
+2025-12-18 09:56:46.482 +05:30 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 09:57:38.537 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/tasks - null null
+2025-12-18 09:57:38.537 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/incidents - null null
+2025-12-18 09:57:38.567 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:57:38.567 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:57:38.587 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/incidents - 204 null null 51.8244ms
+2025-12-18 09:57:38.588 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/tasks - 204 null null 53.564ms
+2025-12-18 09:57:38.595 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/incidents - null null
+2025-12-18 09:57:38.596 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/tasks - null null
+2025-12-18 09:57:38.601 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:57:38.601 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:57:38.708 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '17-12-2025 10:01:02', Current time (UTC): '18-12-2025 04:27:38'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-12-18 09:57:38.708 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '17-12-2025 10:01:02', Current time (UTC): '18-12-2025 04:27:38'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-12-18 09:57:38.717 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '17-12-2025 10:01:02', Current time (UTC): '18-12-2025 04:27:38'.
+2025-12-18 09:57:38.717 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '17-12-2025 10:01:02', Current time (UTC): '18-12-2025 04:27:38'.
+2025-12-18 09:57:38.724 +05:30 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+RolesAuthorizationRequirement:User.IsInRole must be true for one of the following roles: (SafetyOfficer|Admin)
+2025-12-18 09:57:38.724 +05:30 [INF] Authorization failed. These requirements were not met:
+RolesAuthorizationRequirement:User.IsInRole must be true for one of the following roles: (SafetyOfficer|Admin)
+2025-12-18 09:57:38.736 +05:30 [INF] AuthenticationScheme: Bearer was challenged.
+2025-12-18 09:57:38.736 +05:30 [INF] AuthenticationScheme: Bearer was challenged.
+2025-12-18 09:57:38.738 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/incidents - 401 0 null 142.7636ms
+2025-12-18 09:57:38.738 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/tasks - 401 0 null 142.4025ms
+2025-12-18 09:57:46.591 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 09:57:54.962 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/auth/login - null null
+2025-12-18 09:57:54.963 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:57:54.963 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/auth/login - 204 null null 0.8773ms
+2025-12-18 09:57:54.965 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5200/api/auth/login - application/json 62
+2025-12-18 09:57:54.966 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:57:54.977 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.AuthController.Login (HazardEye.API)'
+2025-12-18 09:57:55.020 +05:30 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(HazardEye.API.DTOs.LoginRequest) on controller HazardEye.API.Controllers.AuthController (HazardEye.API).
+2025-12-18 09:57:55.126 +05:30 [INF] Executed DbCommand (13ms) [Parameters=[@request_Email='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."LastLoginAt", u."LastName", u."PasswordHash", u."Role"
+FROM "Users" AS u
+WHERE u."Email" = @request_Email AND u."IsActive"
+LIMIT 1
+2025-12-18 09:57:55.325 +05:30 [INF] Executed DbCommand (6ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Users" SET "LastLoginAt" = @p0
+WHERE "Id" = @p1;
+2025-12-18 09:57:55.361 +05:30 [INF] Executing OkObjectResult, writing value of type 'HazardEye.API.DTOs.LoginResponse'.
+2025-12-18 09:57:55.377 +05:30 [INF] Executed action HazardEye.API.Controllers.AuthController.Login (HazardEye.API) in 349.9225ms
+2025-12-18 09:57:55.378 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.AuthController.Login (HazardEye.API)'
+2025-12-18 09:57:55.385 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5200/api/auth/login - 200 null application/json; charset=utf-8 420.3567ms
+2025-12-18 09:57:55.406 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/incidents - null null
+2025-12-18 09:57:55.406 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/tasks - null null
+2025-12-18 09:57:55.406 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:57:55.406 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:57:55.407 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/incidents - 204 null null 0.644ms
+2025-12-18 09:57:55.407 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/tasks - 204 null null 0.6452ms
+2025-12-18 09:57:55.409 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/incidents - null null
+2025-12-18 09:57:55.409 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/tasks - null null
+2025-12-18 09:57:55.409 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:57:55.409 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:57:55.430 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.TasksController.GetTasks (HazardEye.API)'
+2025-12-18 09:57:55.430 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API)'
+2025-12-18 09:57:55.445 +05:30 [INF] Route matched with {action = "GetTasks", controller = "Tasks"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IEnumerable`1[HazardEye.API.DTOs.WorkTaskDto]]] GetTasks() on controller HazardEye.API.Controllers.TasksController (HazardEye.API).
+2025-12-18 09:57:55.455 +05:30 [INF] Route matched with {action = "GetIncidents", controller = "Incidents"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[HazardEye.API.DTOs.IncidentListResponse]] GetIncidents(HazardEye.API.DTOs.IncidentFilterRequest) on controller HazardEye.API.Controllers.IncidentsController (HazardEye.API).
+2025-12-18 09:57:55.571 +05:30 [INF] Executed DbCommand (11ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."IncidentId", t."AssignedToUserId", u."FirstName", u."LastName", t."Description", t."Status"::text, t."CreatedAt", t."DueDate", t."CompletedAt"
+FROM "Tasks" AS t
+INNER JOIN "Users" AS u ON t."AssignedToUserId" = u."Id"
+ORDER BY t."CreatedAt" DESC
+2025-12-18 09:57:55.574 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[HazardEye.API.DTOs.WorkTaskDto, HazardEye.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-12-18 09:57:55.592 +05:30 [INF] Executed action HazardEye.API.Controllers.TasksController.GetTasks (HazardEye.API) in 147.0626ms
+2025-12-18 09:57:55.592 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.TasksController.GetTasks (HazardEye.API)'
+2025-12-18 09:57:55.592 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/tasks - 200 null application/json; charset=utf-8 183.2676ms
+2025-12-18 09:57:59.720 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Incidents" AS i
+2025-12-18 09:57:59.787 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT i0."Id", i0."Advisory", i0."AssignedTo", i0."CapturedAt", i0."Category", i0."ClosedAt", i0."CreatedAt", i0."CreatedBy", i0."DeviceId", i0."IncidentId", i0."MediaUris", i0."MlMetadata", i0."Note", i0."ResolvedAt", i0."ServerIncidentId", i0."Severity", i0."Status", u."Id", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."LastLoginAt", u."LastName", u."PasswordHash", u."Role", u0."Id", u0."CreatedAt", u0."Email", u0."FirstName", u0."IsActive", u0."LastLoginAt", u0."LastName", u0."PasswordHash", u0."Role"
+FROM (
+    SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+    FROM "Incidents" AS i
+    ORDER BY i."CapturedAt" DESC
+    LIMIT @p0 OFFSET @p
+) AS i0
+LEFT JOIN "Users" AS u ON i0."AssignedTo" = u."Id"
+INNER JOIN "Users" AS u0 ON i0."CreatedBy" = u0."Id"
+ORDER BY i0."CapturedAt" DESC
+2025-12-18 09:57:59.788 +05:30 [INF] Executing OkObjectResult, writing value of type 'HazardEye.API.DTOs.IncidentListResponse'.
+2025-12-18 09:57:59.809 +05:30 [INF] Executed action HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API) in 4353.1052ms
+2025-12-18 09:57:59.809 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API)'
+2025-12-18 09:57:59.809 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/incidents - 200 null application/json; charset=utf-8 4400.1305ms
+2025-12-18 09:58:02.831 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/incidents - null null
+2025-12-18 09:58:02.831 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:58:02.831 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/incidents - 204 null null 0.451ms
+2025-12-18 09:58:02.832 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/incidents - null null
+2025-12-18 09:58:02.833 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:58:02.833 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API)'
+2025-12-18 09:58:02.834 +05:30 [INF] Route matched with {action = "GetIncidents", controller = "Incidents"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[HazardEye.API.DTOs.IncidentListResponse]] GetIncidents(HazardEye.API.DTOs.IncidentFilterRequest) on controller HazardEye.API.Controllers.IncidentsController (HazardEye.API).
+2025-12-18 09:58:05.093 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - null null
+2025-12-18 09:58:05.093 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:58:05.094 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - 204 null null 1.1337ms
+2025-12-18 09:58:05.096 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/auth/users - null null
+2025-12-18 09:58:05.096 +05:30 [INF] CORS policy execution successful.
+2025-12-18 09:58:05.098 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 09:58:05.109 +05:30 [INF] Route matched with {action = "GetUsers", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[HazardEye.API.DTOs.UserDto]]] GetUsers() on controller HazardEye.API.Controllers.AuthController (HazardEye.API).
+2025-12-18 09:58:05.124 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."Email", u."FirstName", u."LastName", u."Role"::text AS "Role"
+FROM "Users" AS u
+2025-12-18 09:58:05.127 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[HazardEye.API.DTOs.UserDto, HazardEye.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-12-18 09:58:05.129 +05:30 [INF] Executed action HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API) in 19.7658ms
+2025-12-18 09:58:05.129 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 09:58:05.130 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/auth/users - 200 null application/json; charset=utf-8 34.0422ms
+2025-12-18 09:58:06.931 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Incidents" AS i
+2025-12-18 09:58:06.934 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[@p0='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT i0."Id", i0."Advisory", i0."AssignedTo", i0."CapturedAt", i0."Category", i0."ClosedAt", i0."CreatedAt", i0."CreatedBy", i0."DeviceId", i0."IncidentId", i0."MediaUris", i0."MlMetadata", i0."Note", i0."ResolvedAt", i0."ServerIncidentId", i0."Severity", i0."Status", u."Id", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."LastLoginAt", u."LastName", u."PasswordHash", u."Role", u0."Id", u0."CreatedAt", u0."Email", u0."FirstName", u0."IsActive", u0."LastLoginAt", u0."LastName", u0."PasswordHash", u0."Role"
+FROM (
+    SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+    FROM "Incidents" AS i
+    ORDER BY i."CapturedAt" DESC
+    LIMIT @p0 OFFSET @p
+) AS i0
+LEFT JOIN "Users" AS u ON i0."AssignedTo" = u."Id"
+INNER JOIN "Users" AS u0 ON i0."CreatedBy" = u0."Id"
+ORDER BY i0."CapturedAt" DESC
+2025-12-18 09:58:06.934 +05:30 [INF] Executing OkObjectResult, writing value of type 'HazardEye.API.DTOs.IncidentListResponse'.
+2025-12-18 09:58:06.934 +05:30 [INF] Executed action HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API) in 4100.7817ms
+2025-12-18 09:58:06.935 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API)'
+2025-12-18 09:58:06.935 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/incidents - 200 null application/json; charset=utf-8 4102.3838ms
+2025-12-18 09:58:46.606 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 09:59:46.616 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:00:46.621 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:01:46.680 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:02:46.699 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:03:46.707 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:04:34.816 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - null null
+2025-12-18 10:04:34.816 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:04:34.816 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - 204 null null 0.5269ms
+2025-12-18 10:04:34.818 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/auth/users - null null
+2025-12-18 10:04:34.818 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:04:34.819 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 10:04:34.819 +05:30 [INF] Route matched with {action = "GetUsers", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[HazardEye.API.DTOs.UserDto]]] GetUsers() on controller HazardEye.API.Controllers.AuthController (HazardEye.API).
+2025-12-18 10:04:34.824 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."Email", u."FirstName", u."LastName", u."Role"::text AS "Role"
+FROM "Users" AS u
+2025-12-18 10:04:34.824 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[HazardEye.API.DTOs.UserDto, HazardEye.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-12-18 10:04:34.824 +05:30 [INF] Executed action HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API) in 5.1281ms
+2025-12-18 10:04:34.824 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 10:04:34.824 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/auth/users - 200 null application/json; charset=utf-8 6.5945ms
+2025-12-18 10:04:46.718 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:05:00.864 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - null null
+2025-12-18 10:05:00.864 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:05:00.864 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - 204 null null 0.4781ms
+2025-12-18 10:05:00.866 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/auth/users - null null
+2025-12-18 10:05:00.866 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:05:00.867 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 10:05:00.867 +05:30 [INF] Route matched with {action = "GetUsers", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[HazardEye.API.DTOs.UserDto]]] GetUsers() on controller HazardEye.API.Controllers.AuthController (HazardEye.API).
+2025-12-18 10:05:00.869 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."Email", u."FirstName", u."LastName", u."Role"::text AS "Role"
+FROM "Users" AS u
+2025-12-18 10:05:00.869 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[HazardEye.API.DTOs.UserDto, HazardEye.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-12-18 10:05:00.869 +05:30 [INF] Executed action HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API) in 2.3583ms
+2025-12-18 10:05:00.870 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 10:05:00.870 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/auth/users - 200 null application/json; charset=utf-8 3.5859ms
+2025-12-18 10:05:46.721 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:06:46.740 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:07:46.786 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:08:09.074 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - null null
+2025-12-18 10:08:09.075 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:08:09.075 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - 204 null null 0.2634ms
+2025-12-18 10:08:09.077 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/auth/users - null null
+2025-12-18 10:08:09.077 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:08:09.077 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 10:08:09.077 +05:30 [INF] Route matched with {action = "GetUsers", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[HazardEye.API.DTOs.UserDto]]] GetUsers() on controller HazardEye.API.Controllers.AuthController (HazardEye.API).
+2025-12-18 10:08:09.080 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."Email", u."FirstName", u."LastName", u."Role"::text AS "Role"
+FROM "Users" AS u
+2025-12-18 10:08:09.081 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[HazardEye.API.DTOs.UserDto, HazardEye.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-12-18 10:08:09.081 +05:30 [INF] Executed action HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API) in 3.2971ms
+2025-12-18 10:08:09.081 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 10:08:09.081 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/auth/users - 200 null application/json; charset=utf-8 4.1158ms
+2025-12-18 10:08:46.805 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:09:21.590 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - null null
+2025-12-18 10:09:21.590 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:09:21.590 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - 204 null null 0.5156ms
+2025-12-18 10:09:21.593 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/auth/users - null null
+2025-12-18 10:09:21.593 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:09:21.593 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 10:09:21.594 +05:30 [INF] Route matched with {action = "GetUsers", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[HazardEye.API.DTOs.UserDto]]] GetUsers() on controller HazardEye.API.Controllers.AuthController (HazardEye.API).
+2025-12-18 10:09:21.596 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."Email", u."FirstName", u."LastName", u."Role"::text AS "Role"
+FROM "Users" AS u
+2025-12-18 10:09:21.596 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[HazardEye.API.DTOs.UserDto, HazardEye.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-12-18 10:09:21.597 +05:30 [INF] Executed action HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API) in 3.095ms
+2025-12-18 10:09:21.597 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 10:09:21.597 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/auth/users - 200 null application/json; charset=utf-8 4.1815ms
+2025-12-18 10:09:46.821 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:09:56.675 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/incidents - null null
+2025-12-18 10:09:56.675 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:09:56.675 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/incidents - 204 null null 0.5727ms
+2025-12-18 10:09:56.677 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/incidents - null null
+2025-12-18 10:09:56.677 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:09:56.678 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API)'
+2025-12-18 10:09:56.678 +05:30 [INF] Route matched with {action = "GetIncidents", controller = "Incidents"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[HazardEye.API.DTOs.IncidentListResponse]] GetIncidents(HazardEye.API.DTOs.IncidentFilterRequest) on controller HazardEye.API.Controllers.IncidentsController (HazardEye.API).
+2025-12-18 10:10:00.791 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Incidents" AS i
+2025-12-18 10:10:00.796 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[@p0='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT i0."Id", i0."Advisory", i0."AssignedTo", i0."CapturedAt", i0."Category", i0."ClosedAt", i0."CreatedAt", i0."CreatedBy", i0."DeviceId", i0."IncidentId", i0."MediaUris", i0."MlMetadata", i0."Note", i0."ResolvedAt", i0."ServerIncidentId", i0."Severity", i0."Status", u."Id", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."LastLoginAt", u."LastName", u."PasswordHash", u."Role", u0."Id", u0."CreatedAt", u0."Email", u0."FirstName", u0."IsActive", u0."LastLoginAt", u0."LastName", u0."PasswordHash", u0."Role"
+FROM (
+    SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+    FROM "Incidents" AS i
+    ORDER BY i."CapturedAt" DESC
+    LIMIT @p0 OFFSET @p
+) AS i0
+LEFT JOIN "Users" AS u ON i0."AssignedTo" = u."Id"
+INNER JOIN "Users" AS u0 ON i0."CreatedBy" = u0."Id"
+ORDER BY i0."CapturedAt" DESC
+2025-12-18 10:10:00.796 +05:30 [INF] Executing OkObjectResult, writing value of type 'HazardEye.API.DTOs.IncidentListResponse'.
+2025-12-18 10:10:00.796 +05:30 [INF] Executed action HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API) in 4118.3809ms
+2025-12-18 10:10:00.797 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API)'
+2025-12-18 10:10:00.797 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/incidents - 200 null application/json; charset=utf-8 4119.5482ms
+2025-12-18 10:10:46.828 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:11:46.840 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:12:46.854 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:13:46.909 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:14:46.925 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:15:46.932 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:16:46.943 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:17:46.948 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:18:46.952 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:19:47.039 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:20:47.048 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:21:47.062 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:22:47.070 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:23:47.081 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:24:47.087 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:25:47.257 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:26:47.276 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:27:47.286 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:28:47.291 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:29:47.297 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:30:47.306 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:31:47.371 +05:30 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:32:47.385 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:33:47.392 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:34:19.371 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/incidents - null null
+2025-12-18 10:34:19.371 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:34:19.372 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/incidents - 204 null null 0.3797ms
+2025-12-18 10:34:19.373 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/incidents - null null
+2025-12-18 10:34:19.378 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:34:19.378 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API)'
+2025-12-18 10:34:19.390 +05:30 [INF] Route matched with {action = "GetIncidents", controller = "Incidents"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[HazardEye.API.DTOs.IncidentListResponse]] GetIncidents(HazardEye.API.DTOs.IncidentFilterRequest) on controller HazardEye.API.Controllers.IncidentsController (HazardEye.API).
+2025-12-18 10:34:23.499 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Incidents" AS i
+2025-12-18 10:34:23.506 +05:30 [INF] Executed DbCommand (6ms) [Parameters=[@p0='?' (DbType = Int32), @p='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT i0."Id", i0."Advisory", i0."AssignedTo", i0."CapturedAt", i0."Category", i0."ClosedAt", i0."CreatedAt", i0."CreatedBy", i0."DeviceId", i0."IncidentId", i0."MediaUris", i0."MlMetadata", i0."Note", i0."ResolvedAt", i0."ServerIncidentId", i0."Severity", i0."Status", u."Id", u."CreatedAt", u."Email", u."FirstName", u."IsActive", u."LastLoginAt", u."LastName", u."PasswordHash", u."Role", u0."Id", u0."CreatedAt", u0."Email", u0."FirstName", u0."IsActive", u0."LastLoginAt", u0."LastName", u0."PasswordHash", u0."Role"
+FROM (
+    SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+    FROM "Incidents" AS i
+    ORDER BY i."CapturedAt" DESC
+    LIMIT @p0 OFFSET @p
+) AS i0
+LEFT JOIN "Users" AS u ON i0."AssignedTo" = u."Id"
+INNER JOIN "Users" AS u0 ON i0."CreatedBy" = u0."Id"
+ORDER BY i0."CapturedAt" DESC
+2025-12-18 10:34:23.508 +05:30 [INF] Executing OkObjectResult, writing value of type 'HazardEye.API.DTOs.IncidentListResponse'.
+2025-12-18 10:34:23.517 +05:30 [INF] Executed action HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API) in 4126.276ms
+2025-12-18 10:34:23.517 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.IncidentsController.GetIncidents (HazardEye.API)'
+2025-12-18 10:34:23.517 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/incidents - 200 null application/json; charset=utf-8 4143.4311ms
+2025-12-18 10:34:47.396 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:35:05.929 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - null null
+2025-12-18 10:35:05.929 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:35:05.929 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5200/api/auth/users - 204 null null 0.2408ms
+2025-12-18 10:35:05.931 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5200/api/auth/users - null null
+2025-12-18 10:35:05.932 +05:30 [INF] CORS policy execution successful.
+2025-12-18 10:35:05.933 +05:30 [INF] Executing endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 10:35:05.943 +05:30 [INF] Route matched with {action = "GetUsers", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[HazardEye.API.DTOs.UserDto]]] GetUsers() on controller HazardEye.API.Controllers.AuthController (HazardEye.API).
+2025-12-18 10:35:05.944 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."Email", u."FirstName", u."LastName", u."Role"::text AS "Role"
+FROM "Users" AS u
+2025-12-18 10:35:05.945 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[HazardEye.API.DTOs.UserDto, HazardEye.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-12-18 10:35:05.946 +05:30 [INF] Executed action HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API) in 3.2669ms
+2025-12-18 10:35:05.946 +05:30 [INF] Executed endpoint 'HazardEye.API.Controllers.AuthController.GetUsers (HazardEye.API)'
+2025-12-18 10:35:05.946 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5200/api/auth/users - 200 null application/json; charset=utf-8 15.8212ms
+2025-12-18 10:35:47.406 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:36:47.415 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:37:47.456 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:38:47.464 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:39:47.472 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:40:47.483 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:41:01.219 +05:30 [INF] Application is shutting down...
+2025-12-18 10:41:41.613 +05:30 [INF] Executed DbCommand (12ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-12-18 10:41:41.737 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2025-12-18 10:41:41.772 +05:30 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2025-12-18 10:41:41.777 +05:30 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2025-12-18 10:41:41.779 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2025-12-18 10:41:41.779 +05:30 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-12-18 10:41:41.782 +05:30 [INF] No migrations were applied. The database is already up to date.
+2025-12-18 10:41:41.909 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Users" AS u)
+2025-12-18 10:41:41.923 +05:30 [INF] User profile is available. Using 'C:\Users\sanja\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-12-18 10:41:42.047 +05:30 [INF] Now listening on: http://[::]:5200
+2025-12-18 10:41:42.048 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-12-18 10:41:42.048 +05:30 [INF] Hosting environment: Production
+2025-12-18 10:41:42.048 +05:30 [INF] Content root path: C:\Users\sanja\OneDrive\Desktop\Coding\Web Dev\Projects\Hazard-Eye\backend\hazardeye.api
+2025-12-18 10:41:42.121 +05:30 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:42:42.185 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:43:42.201 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:44:42.208 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:45:42.219 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:46:42.314 +05:30 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:47:42.324 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:48:42.335 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:49:42.344 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:50:42.358 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:51:42.375 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:52:42.550 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:53:42.561 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:54:42.580 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:55:42.599 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:56:42.608 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:57:42.621 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:58:42.681 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 10:59:42.687 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:00:42.697 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:01:42.707 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:02:42.723 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:03:42.735 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:04:42.785 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:05:42.801 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:06:42.805 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:07:42.808 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:08:42.824 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:09:42.831 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:10:42.895 +05:30 [INF] Executed DbCommand (7ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:11:42.901 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:12:42.919 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:13:42.924 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:14:42.936 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:15:42.941 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:16:43.013 +05:30 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:17:43.028 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:18:43.042 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:19:43.048 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:20:43.066 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:21:43.074 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:22:43.236 +05:30 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:23:43.246 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:24:43.259 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:25:43.267 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:26:43.274 +05:30 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:27:43.287 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:28:43.457 +05:30 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:29:43.472 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:30:43.479 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:31:43.492 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:32:43.504 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:33:43.511 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:34:43.571 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:35:43.584 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:36:43.601 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:37:43.613 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:38:43.626 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:39:43.632 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:40:43.687 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:41:43.695 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:42:43.711 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:43:43.723 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:44:43.741 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:45:43.755 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:46:43.813 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:47:43.817 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:48:43.829 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:49:43.844 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:50:43.851 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:51:43.863 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:52:43.929 +05:30 [INF] Executed DbCommand (11ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:53:43.935 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:54:43.948 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:55:43.959 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:56:43.975 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:57:43.992 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:58:44.049 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 11:59:44.055 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:00:44.070 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:01:44.087 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:02:44.099 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:03:44.112 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:04:44.167 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:05:44.172 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:06:44.189 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:07:44.197 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:08:44.213 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:09:44.223 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:10:44.279 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:11:44.291 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:12:44.305 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:13:44.320 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:14:44.331 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:15:44.336 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:16:44.394 +05:30 [INF] Executed DbCommand (7ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:17:44.409 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:18:44.423 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:19:44.432 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:20:44.437 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:21:44.452 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:22:44.503 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:23:44.515 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:24:44.520 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:25:44.527 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:26:44.539 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:27:44.547 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:28:44.593 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:29:44.607 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:30:44.623 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:31:44.626 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:32:44.635 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:33:44.642 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:34:44.690 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:35:44.694 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:36:44.710 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:37:44.725 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:38:44.731 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:39:44.734 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:40:44.799 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:41:44.807 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:42:44.818 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:43:44.833 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:44:44.843 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:45:44.854 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:46:44.926 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:47:44.933 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:48:44.940 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:49:44.944 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:50:44.959 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:51:44.969 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:52:45.031 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:53:45.049 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:54:45.064 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:55:45.080 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:56:45.087 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:57:45.092 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:58:45.139 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 12:59:45.144 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:00:45.156 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:01:45.166 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:02:45.175 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:03:45.182 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:04:45.246 +05:30 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:05:45.258 +05:30 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:06:45.267 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:07:45.275 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:08:45.291 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:09:45.303 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:10:45.362 +05:30 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:11:45.379 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:12:45.390 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:13:45.400 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:14:45.406 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'
+2025-12-18 13:15:45.410 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT i."Id", i."Advisory", i."AssignedTo", i."CapturedAt", i."Category", i."ClosedAt", i."CreatedAt", i."CreatedBy", i."DeviceId", i."IncidentId", i."MediaUris", i."MlMetadata", i."Note", i."ResolvedAt", i."ServerIncidentId", i."Severity", i."Status"
+FROM "Incidents" AS i
+WHERE i."Severity" IN ('High', 'Critical') AND i."Status" = 'Pending' AND i."CreatedAt" > now() + INTERVAL '-5 mins'

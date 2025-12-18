@@ -12,3 +12,4 @@ public class AdvisoryTemplate
     public DateTime? UpdatedAt { get; set; }
 }
 
+

@@ -20,3 +20,4 @@ public class Device
     public Dictionary<string, object> Metadata { get; set; } = new();
 }
 
+

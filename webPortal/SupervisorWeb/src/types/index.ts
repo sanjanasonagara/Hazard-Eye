@@ -1,0 +1,97 @@
+export type UserRole = 'supervisor' | 'employee';
+
+export type Severity = 'High' | 'Medium' | 'Low';
+
+export type Priority = 'High' | 'Medium' | 'Low';
+
+export type IncidentStatus = 'Open' | 'In Progress' | 'Resolved';
+
+export type TaskStatus = 'Open' | 'In Progress' | 'Completed' | 'Delayed';
+
+export type Department = 
+  | 'Electrical' 
+  | 'Mechanical' 
+  | 'Civil' 
+  | 'Fire & Safety' 
+  | 'Environmental' 
+  | 'General';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  department?: Department;
+  avatar?: string;
+}
+
+export interface Incident {
+  id: string;
+  imageUrl: string;
+  dateTime: Date;
+  area: string;
+  plant: string;
+  unit?: string;
+  department: Department;
+  severity: Severity;
+  status: IncidentStatus;
+  description: string;
+  aiSummary?: string;
+  aiRecommendation?: AIRecommendation;
+}
+
+export interface AIRecommendation {
+  whatToDo: string;
+  whyItMatters: string;
+  preventiveSteps: string[];
+  riskExplanation: string;
+}
+
+export interface Task {
+  id: string;
+  incidentId?: string;
+  description: string;
+  area: string;
+  plant: string;
+  dueDate: Date;
+  priority: Priority;
+  status: TaskStatus;
+  precautions: string;
+  assignedTo: string;
+  assignedToName: string;
+  createdBy: string;
+  createdByName: string;
+  createdAt: Date;
+  delayReason?: string;
+  delayDate?: Date;
+  comments: TaskComment[];
+}
+
+export interface TaskComment {
+  id: string;
+  taskId: string;
+  userId: string;
+  userName: string;
+  userRole: UserRole;
+  content: string;
+  timestamp: Date;
+}
+
+export interface FilterState {
+  timeRange: 'Today' | 'Weekly' | 'Monthly' | 'Custom' | 'All';
+  customStartDate?: Date;
+  customEndDate?: Date;
+  areas: string[];
+  severities: Severity[];
+  departments: Department[];
+  statuses: IncidentStatus[];
+}
+
+export interface AppState {
+  currentUser: User;
+  incidents: Incident[];
+  tasks: Task[];
+  users: User[];
+  filters: FilterState;
+}
+

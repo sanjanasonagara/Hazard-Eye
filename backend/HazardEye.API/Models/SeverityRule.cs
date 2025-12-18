@@ -11,3 +11,4 @@ public class SeverityRule
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
+

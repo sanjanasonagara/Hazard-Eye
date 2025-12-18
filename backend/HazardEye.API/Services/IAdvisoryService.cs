@@ -9,3 +9,4 @@ public interface IAdvisoryService
     Task<string> GenerateAdvisoryAsync(Dictionary<string, object> mlMetadata, IncidentSeverity severity);
 }
 
+

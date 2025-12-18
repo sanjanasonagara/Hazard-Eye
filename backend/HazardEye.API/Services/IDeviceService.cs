@@ -37,3 +37,4 @@ public class UpdateDeviceRequest
     public string? Status { get; set; }
 }
 
+

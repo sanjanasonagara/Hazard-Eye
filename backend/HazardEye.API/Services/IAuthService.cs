@@ -10,3 +10,4 @@ public interface IAuthService
     Task<bool> DeleteUserAsync(int id);
     Task<UserDto?> CreateUserAsync(CreateUserDto request);
 }
+
