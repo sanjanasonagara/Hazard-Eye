@@ -17,7 +17,26 @@ export const IncidentReports: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [showRecommendationModal, setShowRecommendationModal] = useState(false);
-  const incidents = getFilteredIncidents();
+  const [searchQuery, setSearchQuery] = useState('');
+  let incidents = getFilteredIncidents();
+
+  // Apply incident search across key fields, case-insensitive
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    incidents = incidents.filter(incident => {
+      const haystacks = [
+        incident.description,
+        incident.area,
+        incident.plant,
+        incident.department,
+        incident.severity,
+      ];
+      return haystacks.some(
+        value =>
+          value && value.toLowerCase().includes(q)
+      );
+    });
+  }
 
   const handleViewRecommendation = (e: React.MouseEvent, incident: Incident) => {
     e.stopPropagation();
@@ -27,36 +46,53 @@ export const IncidentReports: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Incident Reports</h1>
-          <p className="text-gray-600 mt-1">View and manage safety incidents</p>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Incident Reports</h1>
+            <p className="text-gray-600 mt-1">View and manage safety incidents</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                viewMode === 'grid'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Grid
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              List
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setViewMode('grid')}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-              viewMode === 'grid'
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Grid
-          </button>
-          <button
-            onClick={() => setViewMode('list')}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-              viewMode === 'list'
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            List
-          </button>
+
+        {/* Search + Filters row */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="w-full md:max-w-md">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search incidents by description, area, plant, department, or severity..."
+              className="w-full h-11 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+            />
+          </div>
+
+          <div className="w-full md:flex-1 flex md:justify-end md:items-center">
+            <IncidentFilters />
+          </div>
         </div>
       </div>
-
-      <IncidentFilters />
 
       {/* Cumulative AI Summary */}
       {incidents.length > 0 && (

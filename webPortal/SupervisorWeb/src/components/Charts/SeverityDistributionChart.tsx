@@ -1,5 +1,4 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
 import { Incident, Severity } from '../../types';
 
 interface SeverityDistributionChartProps {
@@ -18,44 +17,83 @@ export const SeverityDistributionChart: React.FC<SeverityDistributionChartProps>
     areaSeverityData[area][incident.severity]++;
   });
 
-  const chartData = Object.entries(areaSeverityData)
+  const rows = Object.entries(areaSeverityData)
     .map(([area, severities]) => ({
-      area: area.length > 20 ? area.substring(0, 20) + '...' : area,
-      fullArea: area,
+      area,
       High: severities.High,
       Medium: severities.Medium,
       Low: severities.Low,
     }))
-    .sort((a, b) => (b.High + b.Medium + b.Low) - (a.High + a.Medium + a.Low))
-    .slice(0, 8); // Top 8 areas
+    .sort((a, b) => (b.High + b.Medium + b.Low) - (a.High + a.Medium + a.Low));
+
+  const getCellStyle = (value: number, color: 'high' | 'medium' | 'low') => {
+    const baseOpacity = 0.2;
+    const intensityStep = 0.12;
+    const opacity = value === 0 ? 0 : Math.min(baseOpacity + value * intensityStep, 0.9);
+
+    let bgBase: string;
+    let textColor: string;
+
+    switch (color) {
+      case 'high':
+        bgBase = '239, 68, 68'; // red-500
+        textColor = value > 0 ? '#b91c1c' : '#cbd5e1';
+        break;
+      case 'medium':
+        bgBase = '249, 115, 22'; // orange-500
+        textColor = value > 0 ? '#c2410c' : '#cbd5e1';
+        break;
+      default:
+        bgBase = '59, 130, 246'; // blue-500
+        textColor = value > 0 ? '#1d4ed8' : '#cbd5e1';
+        break;
+    }
+
+    return {
+      backgroundColor: value > 0 ? `rgba(${bgBase}, ${opacity})` : '#f8fafc',
+      color: textColor,
+      padding: '0.5rem',
+      borderRadius: '0.25rem',
+      fontWeight: 700,
+      fontSize: '0.875rem',
+    };
+  };
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-        <XAxis
-          dataKey="area"
-          angle={-45}
-          textAnchor="end"
-          height={100}
-          tick={{ fontSize: 11 }}
-          stroke="#6b7280"
-        />
-        <YAxis tick={{ fontSize: 12 }} stroke="#6b7280" />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: '#fff',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '8px',
-          }}
-        />
-        <Legend />
-        <Bar dataKey="High" stackId="a" fill="#dc2626" radius={[0, 0, 0, 0]} />
-        <Bar dataKey="Medium" stackId="a" fill="#f59e0b" radius={[0, 0, 0, 0]} />
-        <Bar dataKey="Low" stackId="a" fill="#22c55e" radius={[8, 8, 0, 0]} />
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="h-80 overflow-auto">
+      <table className="w-full border-collapse text-center">
+        <thead>
+          <tr>
+            <th className="text-left px-2 py-2 text-[0.75rem] font-bold tracking-wide text-slate-500">
+              AREA
+            </th>
+            <th className="px-2 py-2 text-[0.75rem] font-bold tracking-wide text-red-500">HIGH</th>
+            <th className="px-2 py-2 text-[0.75rem] font-bold tracking-wide text-orange-500">
+              MED
+            </th>
+            <th className="px-2 py-2 text-[0.75rem] font-bold tracking-wide text-blue-500">LOW</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.area} className="border-b border-slate-100 last:border-0">
+              <td className="text-left px-2 py-3 text-[0.875rem] font-semibold text-slate-700 whitespace-nowrap">
+                {row.area}
+              </td>
+              <td className="px-2 py-2">
+                <div style={getCellStyle(row.High, 'high')}>{row.High}</div>
+              </td>
+              <td className="px-2 py-2">
+                <div style={getCellStyle(row.Medium, 'medium')}>{row.Medium}</div>
+              </td>
+              <td className="px-2 py-2">
+                <div style={getCellStyle(row.Low, 'low')}>{row.Low}</div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

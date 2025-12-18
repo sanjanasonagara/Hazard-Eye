@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, AlertTriangle, ClipboardList, User, ChevronDown, LogOut } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { UserRole } from '../../types';
@@ -8,6 +8,7 @@ export const Header: React.FC = () => {
   const { state, switchRole } = useApp();
   const [showRoleMenu, setShowRoleMenu] = React.useState(false);
   const [showUserMenu, setShowUserMenu] = React.useState(false);
+  const navigate = useNavigate();
 
   const handleRoleSwitch = (role: UserRole) => {
     switchRole(role);
@@ -15,16 +16,18 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+    <header className="bg-[#030d29] border-b border-blue-800 px-6 py-3 flex items-center justify-between text-white">
       {/* Left: App name / logo */}
       <div className="flex items-center gap-3">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">
-            HE
-          </div>
+          <img
+            src="/hazardeye-logo.png"
+            alt="HazardEye logo"
+            className="w-8 h-8 rounded-lg object-contain shadow-sm shadow-black/20"
+          />
           <div className="hidden sm:flex flex-col">
-            <span className="text-sm font-semibold text-gray-900">HazardEye</span>
-            <span className="text-xs text-gray-500">
+            <span className="text-sm font-semibold text-white">HazardEye</span>
+            <span className="text-xs text-blue-200">
               {state.currentUser.role === 'supervisor' ? 'Supervisor Portal' : 'Employee Portal'}
             </span>
           </div>
@@ -37,7 +40,9 @@ export const Header: React.FC = () => {
           to="/"
           className={({ isActive }) =>
             `inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              isActive ? 'text-primary-700 bg-primary-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              isActive
+                ? 'text-white bg-blue-900/80 shadow-sm'
+                : 'text-blue-100 hover:text-white hover:bg-blue-800/60'
             }`
           }
         >
@@ -48,7 +53,9 @@ export const Header: React.FC = () => {
           to="/incidents"
           className={({ isActive }) =>
             `inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              isActive ? 'text-primary-700 bg-primary-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              isActive
+                ? 'text-white bg-blue-900/80 shadow-sm'
+                : 'text-blue-100 hover:text-white hover:bg-blue-800/60'
             }`
           }
         >
@@ -59,7 +66,9 @@ export const Header: React.FC = () => {
           to="/tasks"
           className={({ isActive }) =>
             `inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              isActive ? 'text-primary-700 bg-primary-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              isActive
+                ? 'text-white bg-blue-900/80 shadow-sm'
+                : 'text-blue-100 hover:text-white hover:bg-blue-800/60'
             }`
           }
         >
@@ -74,12 +83,12 @@ export const Header: React.FC = () => {
         <div className="relative">
           <button
             onClick={() => setShowRoleMenu(!showRoleMenu)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-800/60 hover:bg-blue-700/70 rounded-lg transition-colors border border-blue-700"
           >
-            <span className="text-sm font-medium text-gray-700 capitalize">
+            <span className="text-sm font-medium text-blue-100 capitalize">
               {state.currentUser.role}
             </span>
-            <ChevronDown className="w-4 h-4 text-gray-600" />
+            <ChevronDown className="w-4 h-4 text-blue-200" />
           </button>
 
           {showRoleMenu && (
@@ -93,7 +102,7 @@ export const Header: React.FC = () => {
                   onClick={() => handleRoleSwitch('supervisor')}
                   className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
                     state.currentUser.role === 'supervisor' 
-                      ? 'bg-primary-50 text-primary-700 font-medium' 
+                      ? 'bg-blue-50 text-blue-700 font-medium' 
                       : 'text-gray-700'
                   }`}
                 >
@@ -103,7 +112,7 @@ export const Header: React.FC = () => {
                   onClick={() => handleRoleSwitch('employee')}
                   className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
                     state.currentUser.role === 'employee' 
-                      ? 'bg-primary-50 text-primary-700 font-medium' 
+                      ? 'bg-blue-50 text-blue-700 font-medium' 
                       : 'text-gray-700'
                   }`}
                 >
@@ -118,22 +127,22 @@ export const Header: React.FC = () => {
         <div className="relative">
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-3 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center gap-3 px-3 py-2 hover:bg-blue-800/60 rounded-lg transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center shadow-sm shadow-black/20">
               <span className="text-xs font-semibold text-white">
                 {state.currentUser.name.split(' ').map(n => n[0]).join('')}
               </span>
             </div>
             <div className="text-left hidden md:block">
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-white">
                 {state.currentUser.name}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-blue-200">
                 {state.currentUser.department || 'General'}
               </p>
             </div>
-            <ChevronDown className="w-4 h-4 text-gray-600" />
+            <ChevronDown className="w-4 h-4 text-blue-200" />
           </button>
 
           {showUserMenu && (
@@ -151,7 +160,13 @@ export const Header: React.FC = () => {
                     {state.currentUser.email}
                   </p>
                 </div>
-                <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <button
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => {
+                    setShowUserMenu(false);
+                    navigate('/profile');
+                  }}
+                >
                   <User className="w-4 h-4" />
                   Profile Settings
                 </button>

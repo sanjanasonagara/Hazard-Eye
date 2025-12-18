@@ -195,7 +195,19 @@ export const generateMockTasks = (incidents: Incident[], users: User[]): Task[] 
     };
 
     if (status === 'Delayed') {
-      task.delayReason = delayReasons[Math.floor(Math.random() * delayReasons.length)];
+      const reason = delayReasons[Math.floor(Math.random() * delayReasons.length)];
+      // Delay recorded a bit before the due date for realistic timelines
+      const delayDate = new Date(dueDate);
+      delayDate.setDate(delayDate.getDate() - Math.floor(Math.random() * 3) - 1);
+
+      task.delayReason = reason;
+      task.delayDate = delayDate;
+      task.delayHistory = [
+        {
+          reason,
+          date: delayDate,
+        },
+      ];
     }
 
     // Add some comments
@@ -225,6 +237,97 @@ export const generateMockTasks = (incidents: Incident[], users: User[]): Task[] 
 
     tasks.push(task);
   });
+
+  // Additional mock tasks specifically to populate the Employee view
+  if (supervisorUsers.length > 0) {
+    const employeePersona = supervisorUsers[0];
+    const now = new Date();
+
+    const extraTasks: Task[] = [
+      {
+        id: 'emp-task-1',
+        incidentId: undefined,
+        description: 'Inspect safety railing near loading dock platform.',
+        area: 'Loading Dock',
+        plant: 'Main Facility',
+        dueDate: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+        priority: 'Medium',
+        status: 'Open',
+        precautions: 'Ensure area is cordoned off during inspection. Wear fall protection harness.',
+        assignedTo: employeePersona.id,
+        assignedToName: employeePersona.name,
+        createdBy: employeePersona.id,
+        createdByName: employeePersona.name,
+        createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
+        comments: [],
+      },
+      {
+        id: 'emp-task-2',
+        incidentId: undefined,
+        description: 'Verify emergency exit lighting in south wing corridor.',
+        area: 'Plant B',
+        plant: 'South Wing',
+        dueDate: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+        priority: 'Low',
+        status: 'Completed',
+        precautions: 'Perform test during low-traffic hours. Keep corridor clear of obstructions.',
+        assignedTo: employeePersona.id,
+        assignedToName: employeePersona.name,
+        createdBy: employeePersona.id,
+        createdByName: employeePersona.name,
+        createdAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000),
+        comments: [
+          {
+            id: 'emp-task-2-comment-1',
+            taskId: 'emp-task-2',
+            userId: employeePersona.id,
+            userName: employeePersona.name,
+            userRole: 'employee',
+            content: 'All emergency lights tested and functioning as expected.',
+            timestamp: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000),
+          },
+        ],
+      },
+      {
+        id: 'emp-task-3',
+        incidentId: undefined,
+        description: 'Replace corroded valve on fire water line in Refinery A.',
+        area: 'Refinery A',
+        plant: 'Main Facility',
+        dueDate: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000), // yesterday
+        priority: 'High',
+        status: 'Delayed',
+        precautions:
+          'Isolate line and follow lockout/tagout procedures. Confirm zero pressure before starting work.',
+        assignedTo: employeePersona.id,
+        assignedToName: employeePersona.name,
+        createdBy: employeePersona.id,
+        createdByName: employeePersona.name,
+        createdAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+        delayReason: 'Awaiting delivery of certified replacement valve.',
+        delayDate: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
+        delayHistory: [
+          {
+            reason: 'Awaiting delivery of certified replacement valve.',
+            date: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
+          },
+        ],
+        comments: [
+          {
+            id: 'emp-task-3-comment-1',
+            taskId: 'emp-task-3',
+            userId: employeePersona.id,
+            userName: employeePersona.name,
+            userRole: 'employee',
+            content: 'Work area prepared, pending arrival of spare valve.',
+            timestamp: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
+          },
+        ],
+      },
+    ];
+
+    tasks.push(...extraTasks);
+  }
 
   return tasks;
 };

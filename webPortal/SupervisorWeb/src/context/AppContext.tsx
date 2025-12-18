@@ -6,11 +6,9 @@ import {
   Task,
   FilterState,
   UserRole,
-  Severity,
-  Department,
-  IncidentStatus,
   TaskStatus,
   TaskComment,
+  TaskDelayEntry,
 } from '../types';
 import { mockUsers, generateMockIncidents, generateMockTasks } from '../data/mockData';
 
@@ -20,7 +18,8 @@ interface AppContextType {
   switchRole: (role: UserRole) => void;
   updateFilters: (filters: Partial<FilterState>) => void;
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'comments'>) => void;
-  updateTaskStatus: (taskId: string, status: TaskStatus, delayReason?: string) => void;
+  updateTaskStatus: (taskId: string, status: TaskStatus, delayReason?: string, delayDate?: Date) => void;
+  deleteTask: (taskId: string) => void;
   addTaskComment: (taskId: string, comment: Omit<TaskComment, 'id' | 'timestamp'>) => void;
   updateTaskDetails: (
     taskId: string,
@@ -76,17 +75,48 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTasks(prev => [...prev, newTask]);
   }, []);
 
+  const deleteTask = useCallback((taskId: string) => {
+    setTasks(prev => prev.filter(task => task.id !== taskId));
+  }, []);
+
   const updateTaskStatus = useCallback(
-    (taskId: string, status: TaskStatus, delayReason?: string) => {
+    (taskId: string, status: TaskStatus, delayReason?: string, delayDate?: Date) => {
       setTasks(prev =>
         prev.map(task =>
           task.id === taskId
-            ? {
-                ...task,
-                status,
-                delayReason: status === 'Delayed' ? delayReason : undefined,
-                delayDate: status === 'Delayed' ? new Date() : undefined,
-              }
+            ? (() => {
+                // Maintain delay history without overwriting previous entries
+                let delayHistory: TaskDelayEntry[] = task.delayHistory ?? [];
+
+                if (status === 'Delayed' && delayReason) {
+                  const entryDate = delayDate ?? new Date();
+                  const newEntry: TaskDelayEntry = {
+                    reason: delayReason,
+                    date: entryDate,
+                  };
+                  delayHistory = [...delayHistory, newEntry];
+
+                  return {
+                    ...task,
+                    status,
+                    delayHistory,
+                    // Keep single-value fields in sync with latest entry for existing UI
+                    delayReason: newEntry.reason,
+                    delayDate: newEntry.date,
+                  };
+                }
+
+                // For non-delayed status updates, preserve full history and latest displayed values
+                const latestEntry = delayHistory[delayHistory.length - 1];
+
+                return {
+                  ...task,
+                  status,
+                  delayHistory,
+                  delayReason: latestEntry ? latestEntry.reason : undefined,
+                  delayDate: latestEntry ? latestEntry.date : undefined,
+                };
+              })()
             : task
         )
       );
@@ -214,6 +244,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateFilters,
         addTask,
         updateTaskStatus,
+        deleteTask,
         addTaskComment,
         updateTaskDetails,
         getFilteredIncidents,

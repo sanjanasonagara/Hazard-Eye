@@ -47,6 +47,11 @@ export interface AIRecommendation {
   riskExplanation: string;
 }
 
+export interface TaskDelayEntry {
+  reason: string;
+  date: Date;
+}
+
 export interface Task {
   id: string;
   incidentId?: string;
@@ -64,6 +69,7 @@ export interface Task {
   createdAt: Date;
   delayReason?: string;
   delayDate?: Date;
+  delayHistory?: TaskDelayEntry[];
   comments: TaskComment[];
 }
 

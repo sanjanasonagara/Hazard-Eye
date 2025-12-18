@@ -34,57 +34,57 @@ export const Dashboard: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
+        <Card className="bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 border-blue-100">
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Incidents</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalIncidents}</p>
+                <p className="text-sm font-medium text-blue-800">Total Incidents</p>
+                <p className="text-3xl font-bold text-blue-950 mt-2">{stats.totalIncidents}</p>
               </div>
-              <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-primary-600" />
+              <div className="w-12 h-12 bg-blue-600/10 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-blue-600" />
               </div>
             </div>
           </CardBody>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 border-amber-100">
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Open Incidents</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.openIncidents}</p>
+                <p className="text-sm font-medium text-amber-800">Open Incidents</p>
+                <p className="text-3xl font-bold text-amber-900 mt-2">{stats.openIncidents}</p>
               </div>
-              <div className="w-12 h-12 bg-warning-100 rounded-lg flex items-center justify-center">
-                <Clock className="w-6 h-6 text-warning-600" />
+              <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                <Clock className="w-6 h-6 text-amber-600" />
               </div>
             </div>
           </CardBody>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-red-50 via-red-100 to-red-50 border-red-100">
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">High Severity</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.highSeverity}</p>
+                <p className="text-sm font-medium text-red-800">High Severity</p>
+                <p className="text-3xl font-bold text-red-900 mt-2">{stats.highSeverity}</p>
               </div>
-              <div className="w-12 h-12 bg-danger-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-danger-600" />
+              <div className="w-12 h-12 bg-red-500/10 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-red-600" />
               </div>
             </div>
           </CardBody>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-sky-50 via-teal-100 to-sky-50 border-sky-100">
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Pending Tasks</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.pendingTasks}</p>
+                <p className="text-sm font-medium text-sky-900">Pending Tasks</p>
+                <p className="text-3xl font-bold text-sky-950 mt-2">{stats.pendingTasks}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <ClipboardList className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-sky-500/10 rounded-lg flex items-center justify-center">
+                <ClipboardList className="w-6 h-6 text-sky-600" />
               </div>
             </div>
           </CardBody>

@@ -14,20 +14,21 @@ import { Card, CardBody, CardHeader } from '../components/UI/Card';
 import { Badge } from '../components/UI/Badge';
 import { Button } from '../components/UI/Button';
 import { Modal } from '../components/UI/Modal';
-import { TaskStatus, Priority } from '../types';
+import { Priority } from '../types';
 import { format } from 'date-fns';
 import { formatRelativeTime } from '../utils/date';
 
 export const TaskDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { state, updateTaskStatus, addTaskComment, updateTaskDetails } = useApp();
-  const [showStatusModal, setShowStatusModal] = useState(false);
+  const { state, updateTaskStatus, deleteTask, addTaskComment, updateTaskDetails } = useApp();
   const [showCommentModal, setShowCommentModal] = useState(false);
-  const [newStatus, setNewStatus] = useState<TaskStatus>('Open');
   const [delayReason, setDelayReason] = useState('');
+  const [delayDate, setDelayDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
   const [comment, setComment] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDelayModal, setShowDelayModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const task = state.tasks.find(t => t.id === id);
 
@@ -51,9 +52,29 @@ export const TaskDetail: React.FC = () => {
     state.currentUser.role === 'employee' && task.assignedTo === state.currentUser.id;
   const isSupervisor = state.currentUser.role === 'supervisor';
 
-  const handleStatusUpdate = () => {
-    updateTaskStatus(task.id, newStatus, delayReason || undefined);
-    setShowStatusModal(false);
+  const handleMarkDone = () => {
+    if (!canUpdateStatus || task.status === 'Completed') return;
+    updateTaskStatus(task.id, 'Completed');
+  };
+
+  const handleDeleteTask = () => {
+    if (isDeleting) return;
+    const confirmed = window.confirm('Are you sure you want to delete this task?');
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    deleteTask(task.id);
+    navigate('/tasks');
+  };
+
+  const handleDelaySubmit = () => {
+    if (!canUpdateStatus) return;
+    if (!delayReason.trim()) return;
+
+    const parsedDelayDate = new Date(delayDate);
+
+    updateTaskStatus(task.id, 'Delayed', delayReason.trim(), parsedDelayDate);
+    setShowDelayModal(false);
     setDelayReason('');
   };
 
@@ -151,6 +172,30 @@ export const TaskDetail: React.FC = () => {
             <MessageSquare className="w-4 h-4 mr-2" />
             Add Comment
           </Button>
+          <Button
+            variant="outline"
+            onClick={handleDeleteTask}
+            disabled={isDeleting}
+          >
+            Delete Task
+          </Button>
+          {canUpdateStatus && isOverdue && task.status !== 'Completed' && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setDelayReason('');
+                setDelayDate(format(new Date(), 'yyyy-MM-dd'));
+                setShowDelayModal(true);
+              }}
+            >
+              Delay
+            </Button>
+          )}
+          {canUpdateStatus && task.status !== 'Completed' && (
+            <Button onClick={handleMarkDone}>
+              Done
+            </Button>
+          )}
         </div>
       </div>
 
@@ -182,24 +227,52 @@ export const TaskDetail: React.FC = () => {
             </CardBody>
           </Card>
 
-          {/* Delay Reason */}
-          {task.delayReason && (
-            <Card className="border-l-4 border-l-warning-500">
-              <CardHeader>
-                <h2 className="text-lg font-semibold text-warning-900">Delay Reason</h2>
-              </CardHeader>
-              <CardBody className="space-y-2">
-                <p className="text-warning-800">
-                  <span className="font-medium">Reason:</span> {task.delayReason}
-                </p>
-                {task.delayDate && (
-                  <p className="text-xs text-gray-500">
-                    {format(task.delayDate, 'MMM d, yyyy h:mm a')} • {formatRelativeTime(task.delayDate)}
-                  </p>
-                )}
-              </CardBody>
-            </Card>
-          )}
+          {/* Delay History (Task Details only) */}
+          {(() => {
+            const history =
+              task.delayHistory && task.delayHistory.length > 0
+                ? [...task.delayHistory]
+                : task.delayReason && task.delayDate
+                ? [
+                    {
+                      reason: task.delayReason,
+                      date: task.delayDate,
+                    },
+                  ]
+                : [];
+
+            if (history.length === 0) return null;
+
+            // Oldest first
+            history.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+            return (
+              <Card className="border-l-4 border-l-warning-500">
+                <CardHeader>
+                  <h2 className="text-lg font-semibold text-warning-900">Delay History</h2>
+                </CardHeader>
+                <CardBody className="space-y-4">
+                  {history.map((entry, index) => (
+                    <div key={index} className="space-y-1">
+                      <p className="text-warning-800">
+                        <span className="font-medium">Delay Reason:</span>{' '}
+                        {entry.reason}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {format(
+                          entry.date,
+                          state.currentUser.role === 'employee'
+                            ? 'MMM d, yyyy'
+                            : 'MMM d, yyyy h:mm a'
+                        )}{' '}
+                        • {formatRelativeTime(entry.date)}
+                      </p>
+                    </div>
+                  ))}
+                </CardBody>
+              </Card>
+            );
+          })()}
 
           {/* Comments / Activity Feed */}
           <Card>
@@ -229,7 +302,8 @@ export const TaskDetail: React.FC = () => {
                           </div>
                           <span className="text-xs text-gray-500">
                             {format(comment.timestamp, 'MMM d, yyyy h:mm a')}
-                            {comment.userRole === 'supervisor' && (
+                            {(state.currentUser.role === 'employee' ||
+                              comment.userRole === 'supervisor') && (
                               <> • {formatRelativeTime(comment.timestamp)}</>
                             )}
                           </span>
@@ -334,69 +408,57 @@ export const TaskDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Status Update Modal (employees only) */}
+      {/* Delay Modal (employees only) */}
       {canUpdateStatus && (
         <Modal
-          isOpen={showStatusModal}
+          isOpen={showDelayModal}
           onClose={() => {
-            setShowStatusModal(false);
+            setShowDelayModal(false);
             setDelayReason('');
           }}
-          title="Update Task Status"
+          title="Delay Task"
         >
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                New Status *
+                Delay Reason *
               </label>
-              <select
-                value={newStatus}
-                onChange={(e) => {
-                  setNewStatus(e.target.value as TaskStatus);
-                  if (e.target.value !== 'Delayed') {
-                    setDelayReason('');
-                  }
-                }}
+              <textarea
+                value={delayReason}
+                onChange={(e) => setDelayReason(e.target.value)}
+                required
+                rows={3}
+                placeholder="Explain why this task is delayed..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
-                <option value="Delayed">Delayed</option>
-              </select>
+              />
             </div>
-
-            {newStatus === 'Delayed' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Delay Reason *
-                </label>
-                <textarea
-                  value={delayReason}
-                  onChange={(e) => setDelayReason(e.target.value)}
-                  required
-                  rows={3}
-                  placeholder="Explain why this task is delayed..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Delay Date *
+              </label>
+              <input
+                type="date"
+                value={delayDate}
+                onChange={(e) => setDelayDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
               <Button
                 variant="outline"
                 onClick={() => {
-                  setShowStatusModal(false);
+                  setShowDelayModal(false);
                   setDelayReason('');
                 }}
               >
                 Cancel
               </Button>
               <Button
-                onClick={handleStatusUpdate}
-                disabled={newStatus === 'Delayed' && !delayReason.trim()}
+                onClick={handleDelaySubmit}
+                disabled={!delayReason.trim()}
               >
-                Update Status
+                Save Delay
               </Button>
             </div>
           </div>

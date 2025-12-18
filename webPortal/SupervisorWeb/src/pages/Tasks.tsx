@@ -14,13 +14,31 @@ const statuses: TaskStatus[] = ['Open', 'In Progress', 'Completed', 'Delayed'];
 const priorities: Priority[] = ['High', 'Medium', 'Low'];
 
 export const Tasks: React.FC = () => {
-  const { getFilteredTasks, state } = useApp();
+  const { getFilteredTasks, state, updateTaskStatus } = useApp();
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<TaskStatus[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<Priority[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+   const [searchQuery, setSearchQuery] = useState('');
 
   let tasks = getFilteredTasks();
+
+  // Apply search filter (case-insensitive) across key fields
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    tasks = tasks.filter(task => {
+      const haystacks = [
+        task.description,
+        task.area,
+        task.plant,
+        task.assignedToName,
+      ];
+      return haystacks.some(
+        value =>
+          value && value.toLowerCase().includes(q)
+      );
+    });
+  }
 
   // Apply filters
   if (statusFilter.length > 0) {
@@ -46,6 +64,14 @@ export const Tasks: React.FC = () => {
     return dueDate < new Date();
   };
 
+  const isEmployee = state.currentUser.role === 'employee';
+
+  // Employee-specific actions (comment/delay) are handled on Task Detail view only
+
+  const handleMarkDone = (taskId: string) => {
+    updateTaskStatus(taskId, 'Completed');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -69,58 +95,72 @@ export const Tasks: React.FC = () => {
         )}
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardBody>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">Status:</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {statuses.map(status => (
-                <button
-                  key={status}
-                  onClick={() => toggleFilter(statusFilter, setStatusFilter, status)}
-                  className={`
-                    px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
-                    ${statusFilter.includes(status)
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }
-                  `}
-                >
-                  {status}
-                </button>
-              ))}
-            </div>
-          </div>
+      {/* Search + Filters row */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="w-full md:max-w-md">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search tasks by description, area, plant, or assignee..."
+            className="w-full h-11 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+          />
+        </div>
 
-          <div className="flex items-center gap-6 mt-4">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">Priority:</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {priorities.map(priority => (
-                <button
-                  key={priority}
-                  onClick={() => toggleFilter(priorityFilter, setPriorityFilter, priority)}
-                  className={`
-                    px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
-                    ${priorityFilter.includes(priority)
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }
-                  `}
-                >
-                  {priority}
-                </button>
-              ))}
-            </div>
-          </div>
-        </CardBody>
-      </Card>
+        <div className="w-full md:flex-1">
+          <Card className="h-full">
+            <CardBody className="py-2">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-700">Status:</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {statuses.map(status => (
+                    <button
+                      key={status}
+                      onClick={() => toggleFilter(statusFilter, setStatusFilter, status)}
+                      className={`
+                        px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
+                        ${statusFilter.includes(status)
+                          ? 'bg-primary-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }
+                      `}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6 mt-4">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-700">Priority:</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {priorities.map(priority => (
+                    <button
+                      key={priority}
+                      onClick={() => toggleFilter(priorityFilter, setPriorityFilter, priority)}
+                      className={`
+                        px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
+                        ${priorityFilter.includes(priority)
+                          ? 'bg-primary-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }
+                      `}
+                    >
+                      {priority}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+      </div>
 
       {/* Tasks List */}
       {tasks.length === 0 ? (
@@ -139,71 +179,132 @@ export const Tasks: React.FC = () => {
         </Card>
       ) : (
         <div className="space-y-4">
-          {tasks.map(task => (
-            <Card
-              key={task.id}
-              onClick={() => navigate(`/tasks/${task.id}`)}
-              className="hover:shadow-md transition-shadow"
-            >
-              <CardBody>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant={task.priority}>{task.priority}</Badge>
-                      <Badge variant={task.status}>{task.status}</Badge>
-                      {isOverdue(task.dueDate) && task.status !== 'Completed' && (
-                        <Badge variant="High" className="bg-danger-100 text-danger-800">
-                          Overdue
-                        </Badge>
-                      )}
-                    </div>
+          {tasks.map(task => {
+            const overdue = isOverdue(task.dueDate) && task.status !== 'Completed';
 
-                    <h3 className="font-semibold text-gray-900 mb-2">
-                      {task.description}
-                    </h3>
+            if (!isEmployee) {
+              // Supervisor view remains the original layout
+              return (
+                <Card
+                  key={task.id}
+                  onClick={() => navigate(`/tasks/${task.id}`)}
+                  className="hover:shadow-md transition-shadow cursor-pointer"
+                >
+                  <CardBody>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant={task.priority}>{task.priority}</Badge>
+                          <Badge variant={task.status}>{task.status}</Badge>
+                          {overdue && (
+                            <Badge variant="High" className="bg-danger-100 text-danger-800">
+                              Overdue
+                            </Badge>
+                          )}
+                        </div>
 
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span className={isOverdue(task.dueDate) && task.status !== 'Completed' ? 'text-danger-600 font-medium' : ''}>
-                          Due: {format(task.dueDate, 'MMM d, yyyy')}
-                        </span>
+                        <h3 className="font-semibold text-gray-900 mb-2">
+                          {task.description}
+                        </h3>
+
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            <span className={overdue ? 'text-danger-600 font-medium' : ''}>
+                              Due: {format(task.dueDate, 'MMM d, yyyy')}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4" />
+                            <span>{`Assigned to: ${task.assignedToName}`}</span>
+                          </div>
+
+                          <span className="text-gray-500">
+                            {task.area} • {task.plant}
+                          </span>
+                        </div>
+
+                        {task.delayReason && (
+                          <div className="mt-3 p-3 bg-warning-50 border border-warning-200 rounded-lg">
+                            <p className="text-sm font-medium text-warning-900 mb-1">
+                              Delay Reason:
+                            </p>
+                            <p className="text-sm text-warning-800">{task.delayReason}</p>
+                          </div>
+                        )}
+
+                        {task.comments.length > 0 && (
+                          <div className="mt-3 text-sm text-gray-500">
+                            {task.comments.length} comment{task.comments.length !== 1 ? 's' : ''}
+                          </div>
+                        )}
                       </div>
+                    </div>
+                  </CardBody>
+                </Card>
+              );
+            }
 
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4" />
+            // Employee task card – read-only except Done
+            return (
+              <Card
+                key={task.id}
+                onClick={() => navigate(`/tasks/${task.id}`)}
+                className="hover:shadow-md transition-shadow cursor-pointer"
+              >
+                <CardBody>
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant={task.priority}>{task.priority}</Badge>
+                        <Badge variant={task.status}>{task.status}</Badge>
+                        {overdue && (
+                          <Badge variant="High" className="bg-danger-100 text-danger-800">
+                            Overdue
+                          </Badge>
+                        )}
+                      </div>
+                      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">
+                        {task.description}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600">
+                        <span>Assigned by: {task.createdByName}</span>
                         <span>
-                          {state.currentUser.role === 'supervisor' 
-                            ? `Assigned to: ${task.assignedToName}`
-                            : `Created by: ${task.createdByName}`
-                          }
+                          Due: {format(task.dueDate, 'MMM d, yyyy')}
+                          {overdue && ' • overdue'}
+                        </span>
+                        <span className="text-gray-500">
+                          {task.area} • {task.plant}
                         </span>
                       </div>
-
-                      <span className="text-gray-500">
-                        {task.area} • {task.plant}
-                      </span>
                     </div>
+                  </div>
 
-                    {task.delayReason && (
-                      <div className="mt-3 p-3 bg-warning-50 border border-warning-200 rounded-lg">
-                        <p className="text-sm font-medium text-warning-900 mb-1">
-                          Delay Reason:
-                        </p>
-                        <p className="text-sm text-warning-800">{task.delayReason}</p>
-                      </div>
-                    )}
-
-                    {task.comments.length > 0 && (
-                      <div className="mt-3 text-sm text-gray-500">
-                        {task.comments.length} comment{task.comments.length !== 1 ? 's' : ''}
-                      </div>
+                  {/* Footer actions */}
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    {task.status !== 'Completed' ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleMarkDone(task.id);
+                        }}
+                      >
+                        Done
+                      </Button>
+                    ) : (
+                      <span className="text-xs text-gray-500 ml-auto">
+                        Marked as completed
+                      </span>
                     )}
                   </div>
-                </div>
-              </CardBody>
-            </Card>
-          ))}
+                </CardBody>
+              </Card>
+            );
+          })}
         </div>
       )}
 
@@ -220,6 +321,8 @@ export const Tasks: React.FC = () => {
           onClose={() => setShowCreateModal(false)}
         />
       )}
+
+      {/* Employee delay/comment interactions are handled on Task Detail view */}
     </div>
   );
 };

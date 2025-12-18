@@ -29,7 +29,7 @@ export const Badge: React.FC<BadgeProps> = ({ variant, children, className = '' 
   return (
     <span
       className={`
-        inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+        inline-flex items-center px-2.5 py-0.5 rounded-none text-xs font-medium
         border ${styles} ${className}
       `}
     >

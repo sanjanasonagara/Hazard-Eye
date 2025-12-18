@@ -7,6 +7,7 @@ import { IncidentReports } from './pages/IncidentReports';
 import { IncidentDetail } from './pages/IncidentDetail';
 import { Tasks } from './pages/Tasks';
 import { TaskDetail } from './pages/TaskDetail';
+import ProfileSettings from './pages/ProfileSettings';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Route path="incidents/:id" element={<IncidentDetail />} />
             <Route path="tasks" element={<Tasks />} />
             <Route path="tasks/:id" element={<TaskDetail />} />
+            <Route path="profile" element={<ProfileSettings />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
