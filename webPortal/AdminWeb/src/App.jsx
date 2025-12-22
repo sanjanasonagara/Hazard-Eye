@@ -10,6 +10,7 @@ import Reports from './pages/Reports';
 import ProfileSettings from './pages/ProfileSettings';
 import SafetyGuidelines from './pages/SafetyGuidelines';
 
+import UserManagement from './pages/UserManagement';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="cms" element={<CMS />} />
           <Route path="reports" element={<Reports />} />
 
+          <Route path="admin/users" element={<UserManagement />} />
           <Route path="safety" element={<SafetyGuidelines />} />
           <Route path="profile" element={<ProfileSettings />} />
           {/* Fallback */}

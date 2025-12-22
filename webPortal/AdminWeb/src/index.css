@@ -41,6 +41,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Custom overwrites can go here if needed */
+
 h1,
 h2,
 h3,
