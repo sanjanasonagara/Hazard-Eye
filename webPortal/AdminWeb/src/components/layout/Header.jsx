@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Bell, User, Search, ShieldAlert } from 'lucide-react';
+
 import {
     LayoutDashboard,
     BarChart3,
@@ -28,12 +29,12 @@ const Header = () => {
     const navItems = [
         { path: '/', name: 'Dashboard', icon: LayoutDashboard },
         { path: '/cms', name: 'Content Management System', icon: Files },
-<<<<<<< HEAD
+
         { path: '/admin/users', name: 'User Management', icon: User },
-=======
+
 
         { path: '/safety-guidelines', name: 'Safety Resources', icon: BookOpen },
->>>>>>> e374bc096e07ce1c3da1946a0988cb328371324f
+
         { path: '/reports', name: 'Reports', icon: FileText },
     ];
 
