@@ -27,7 +27,6 @@ const Header = () => {
 
     const navItems = [
         { path: '/', name: 'Dashboard', icon: LayoutDashboard },
-        { path: '/analytics', name: 'Analytics', icon: BarChart3 },
         { path: '/cms', name: 'Content Management System', icon: Files },
         { path: '/maintenance', name: 'Maintenance', icon: Wrench },
         { path: '/reports', name: 'Reports', icon: FileText },

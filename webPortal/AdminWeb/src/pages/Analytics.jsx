@@ -111,7 +111,7 @@ const Analytics = () => {
 
                 {/* Severity Heatmap */}
                 <div className="card">
-                    <h3 className="text-lg font-bold text-slate-800" style={{ marginBottom: '1.5rem' }}>Severity Dist. Heatmap</h3>
+                    <h3 className="text-lg font-bold text-slate-800" style={{ marginBottom: '1.5rem' }}>Severity Distribution </h3>
                     <div style={{ height: '20rem', overflow: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
                             <thead>
