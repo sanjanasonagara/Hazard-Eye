@@ -29,8 +29,8 @@ const Header = () => {
         { path: '/', name: 'Dashboard', icon: LayoutDashboard },
         { path: '/cms', name: 'Content Management System', icon: Files },
 
+        { path: '/safety-guidelines', name: 'Safety Resources', icon: BookOpen },
         { path: '/reports', name: 'Reports', icon: FileText },
-        { path: '/safety', name: 'Safety', icon: BookOpen },
     ];
 
     return (

@@ -1,130 +1,315 @@
-import React from 'react';
-import { Download, FileText, AlertTriangle, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Download, FileText, ShieldCheck, CheckCircle2, Search, Settings, Power, Lock } from 'lucide-react';
+import { Card, CardHeader, CardBody } from '../components/UI/Card';
+import { Button } from '../components/UI/Button';
+import { format } from 'date-fns';
+import { mockSafetyResources } from '../data/mockData';
+
+const IconMap = {
+    ShieldCheck: <ShieldCheck size={20} color="#2563eb" />, // blue-600
+    Settings: <Settings size={20} color="#4b5563" />, // gray-600
+    Power: <Power size={20} color="#ea580c" />, // orange-600
+    Lock: <Lock size={20} color="#dc2626" />, // red-600
+};
 
 const SafetyGuidelines = () => {
-    const handleDownloadPDF = () => {
-        alert('Downloading Safety_Guidelines_v2024.pdf...');
+    const [activeTab, setActiveTab] = useState('All');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredResources = useMemo(() => {
+        return mockSafetyResources.filter(resource => {
+            const matchesTab = activeTab === 'All' || resource.type === activeTab;
+            const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                resource.content.toLowerCase().includes(searchQuery.toLowerCase());
+            return matchesTab && matchesSearch;
+        });
+    }, [activeTab, searchQuery]);
+
+    const handleDownload = (id) => {
+        alert(`Downloading resource: ${id}`);
+    };
+
+    // --- Inline Styles for "Pixel Perfect" Matching ---
+    const styles = {
+        container: {
+            maxWidth: '1152px', // max-w-6xl
+            margin: '0 auto',
+            paddingBottom: '2.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2rem',
+        },
+        headerSection: {
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            gap: '1.5rem',
+            borderBottom: '1px solid #e5e7eb', // gray-200
+            paddingBottom: '2rem',
+        },
+        title: {
+            fontSize: '1.875rem', // 3xl
+            fontWeight: '700',
+            color: '#111827', // gray-900
+            lineHeight: '1.25',
+            margin: 0,
+        },
+        subtitle: {
+            color: '#6b7280', // gray-500
+            marginTop: '0.5rem',
+            maxWidth: '36rem',
+            fontSize: '1rem',
+        },
+        searchWrapper: {
+            position: 'relative',
+            width: '100%',
+            maxWidth: '16rem',
+        },
+        searchInput: {
+            width: '100%',
+            paddingLeft: '2.5rem',
+            paddingRight: '1rem',
+            paddingTop: '0.5rem',
+            paddingBottom: '0.5rem',
+            backgroundColor: 'white',
+            border: '1px solid #e5e7eb', // gray-200
+            borderRadius: '0.5rem',
+            fontSize: '0.875rem',
+            outline: 'none',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        },
+        searchIcon: {
+            position: 'absolute',
+            left: '0.75rem',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: '#9ca3af', // gray-400
+            width: '1rem',
+            height: '1rem',
+        },
+        tabContainer: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            backgroundColor: '#f3f4f6', // gray-100
+            padding: '0.25rem',
+            borderRadius: '0.75rem',
+            width: 'fit-content',
+            border: '1px solid #e5e7eb',
+        },
+        tabButton: (isActive) => ({
+            padding: '0.5rem 1.5rem',
+            borderRadius: '0.5rem',
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            transition: 'all 0.2s',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: isActive ? 'white' : 'transparent',
+            color: isActive ? '#0369a1' : '#6b7280', // primary-700 : gray-500
+            boxShadow: isActive ? '0 1px 2px 0 rgba(0, 0, 0, 0.05)' : 'none',
+            border: isActive ? '1px solid #e5e7eb' : '1px solid transparent',
+        }),
+        contentList: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2rem',
+        },
+        cardTopBorder: (color) => ({
+            borderTop: `4px solid ${color}`,
+        }),
+        cardHeaderContent: {
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '1rem',
+            flexWrap: 'wrap',
+        },
+        iconBox: {
+            padding: '0.75rem',
+            backgroundColor: 'white',
+            border: '1px solid #e5e7eb',
+            borderRadius: '0.75rem',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+            color: '#2563eb', // primary-600
+        },
+        resourceTitle: {
+            fontSize: '1.25rem', // xl
+            fontWeight: '700',
+            color: '#1f2937', // gray-800
+            margin: 0,
+        },
+        badge: (type) => ({
+            fontSize: '10px',
+            fontWeight: '700',
+            padding: '0.125rem 0.5rem',
+            borderRadius: '9999px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            backgroundColor: type === 'SOP' ? '#ffedd5' : '#dbeafe', // orange-100 : blue-100
+            color: type === 'SOP' ? '#c2410c' : '#1d4ed8', // orange-700 : blue-700
+            marginLeft: '0.5rem',
+        }),
+        dateText: {
+            fontSize: '0.75rem', // xs
+            color: '#9ca3af', // gray-400
+            margin: 0,
+            marginTop: '0.25rem',
+        },
+        quoteBox: {
+            color: '#4b5563', // gray-600
+            lineHeight: '1.625',
+            fontWeight: '500',
+            backgroundColor: '#f9fafb', // gray-50
+            padding: '1rem',
+            borderRadius: '0.75rem',
+            border: '1px solid #f3f4f6', // gray-100
+            fontStyle: 'italic',
+            marginBottom: '2rem',
+        },
+        sectionsGrid: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '2rem',
+        },
+        sectionTitle: {
+            fontWeight: '700',
+            color: '#1f2937', // gray-800
+            fontSize: '1.125rem', // lg
+            textTransform: 'uppercase',
+            letterSpacing: '-0.025em',
+            margin: 0,
+        },
+        listItem: {
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.75rem',
+            padding: '0.75rem',
+            borderRadius: '0.5rem',
+            transition: 'background-color 0.2s',
+        },
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 pb-10">
+        <div style={styles.container}>
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+            <div style={styles.headerSection}>
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800">Safety Guidelines & Protocols</h1>
-                    <p className="text-slate-500 mt-2">
-                        Official workplace safety standards and emergency procedures.
-                        <br />
-                        <span className="text-xs text-slate-400">Last updated: December 15, 2024</span>
+                    <h1 style={styles.title}>Safety Resources</h1>
+                    <p style={styles.subtitle}>
+                        Access official safety guidelines and Standard Operating Procedures (SOPs) for workplace compliance.
                     </p>
+                </div>
+
+                <div style={styles.searchWrapper}>
+                    <Search style={styles.searchIcon} />
+                    <input
+                        type="text"
+                        placeholder="Search resources..."
+                        style={styles.searchInput}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
             </div>
 
-            {/* Document Content */}
-            <div className="card space-y-8 p-8 md:p-12">
-
-                {/* Section 1 */}
-                <section>
-                    <div className="flex items-center gap-3 mb-4">
-                        <ShieldCheck className="text-blue-600" size={24} />
-                        <h2 className="text-2xl font-bold text-slate-800">1. General Workplace Safety</h2>
-                    </div>
-                    <div className="prose text-slate-600 leading-relaxed space-y-4">
-                        <p>
-                            All employees and visitors must adhere to the following general safety rules to ensure a secure working environment.
-                            Safety is everyone's responsibility.
-                        </p>
-                        <ul className="space-y-2 list-none pl-1">
-                            {[
-                                "Always wear your ID badge while on company premises.",
-                                "Report any unsafe conditions or hazards to a supervisor immediately.",
-                                "Keep walkways and emergency exits clear of obstructions at all times.",
-                                "Do not operate machinery or equipment unless you are trained and authorized."
-                            ].map((item, i) => (
-                                <li key={i} className="flex items-start gap-3">
-                                    <CheckCircle2 size={16} className="text-green-500 mt-1 shrink-0" />
-                                    <span>{item}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </section>
-
-                <hr className="border-slate-100" />
-
-                {/* Section 2 */}
-                <section>
-                    <div className="flex items-center gap-3 mb-4">
-                        <AlertTriangle className="text-orange-500" size={24} />
-                        <h2 className="text-2xl font-bold text-slate-800">2. Emergency Procedures</h2>
-                    </div>
-                    <div className="prose text-slate-600 leading-relaxed space-y-4">
-                        <p>
-                            In case of an emergency, stay calm and follow the designated protocols.
-                        </p>
-                        <div className="bg-orange-50 border border-orange-100 rounded-lg p-6">
-                            <h3 className="font-bold text-orange-800 mb-2">Fire Emergency</h3>
-                            <p className="text-orange-700 text-sm mb-4">
-                                If you discover a fire or see smoke, immediately activate the nearest fire alarm manual pull station.
-                            </p>
-                            <ol className="list-decimal list-inside space-y-2 text-orange-800 font-medium">
-                                <li><strong>Rescue:</strong> Assist anyone in immediate danger if safe to do so.</li>
-                                <li><strong>Alarm:</strong> Activate the nearest fire alarm.</li>
-                                <li><strong>Contain:</strong> Close doors/windows to contain the fire (do not lock).</li>
-                                <li><strong>Evacuate:</strong> Leave via the nearest safe exit. Do not use elevators.</li>
-                            </ol>
-                        </div>
-                    </div>
-                </section>
-
-                <hr className="border-slate-100" />
-
-                {/* Section 3 */}
-                <section>
-                    <div className="flex items-center gap-3 mb-4">
-                        <FileText className="text-indigo-500" size={24} />
-                        <h2 className="text-2xl font-bold text-slate-800">3. Personal Protective Equipment (PPE)</h2>
-                    </div>
-                    <div className="prose text-slate-600 leading-relaxed">
-                        <p className="mb-4">
-                            Appropriate PPE must be worn in designated areas. Signs are posted in all areas requiring specific protective gear.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-slate-50 p-4 rounded border border-slate-100">
-                                <h4 className="font-bold text-slate-700">Production Floor</h4>
-                                <p className="text-sm mt-1">Safety glasses, steel-toed boots, and high-visibility vests are mandatory.</p>
-                            </div>
-                            <div className="bg-slate-50 p-4 rounded border border-slate-100">
-                                <h4 className="font-bold text-slate-700">Chemical Lab</h4>
-                                <p className="text-sm mt-1">Lab coats, safety goggles, and nitrile gloves must be worn at all times.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
+            {/* Tab Navigation */}
+            <div style={styles.tabContainer}>
+                {['All', 'Safety Guideline', 'SOP'].map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        style={styles.tabButton(activeTab === tab)}
+                    >
+                        {tab === 'All' ? 'All Resources' : tab + 's'}
+                    </button>
+                ))}
             </div>
 
-            {/* Footer Download Action */}
-            <div className="flex justify-end pt-4">
-                <button
-                    onClick={handleDownloadPDF}
-                    className="btn btn-outline text-xs py-1 px-3"
-                    style={{
-                        fontSize: '1rem',
-                        backgroundColor: '#3883e4c3',
-                        textAlign: "center",
-                        color: "white",
-                        fontWeight: "bold",
-                        display: 'flex',
-                        margin: '0 auto',
-                        alignItems: 'center',
-                        padding: '10px 20px',
+            {/* Content List */}
+            <div style={styles.contentList}>
+                {filteredResources.length > 0 ? (
+                    filteredResources.map((resource) => (
+                        <Card key={resource.id} style={styles.cardTopBorder('#3b82f6')}>
+                            <CardHeader>
+                                <div style={styles.cardHeaderContent}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                        <div style={styles.iconBox}>
+                                            <FileText size={24} />
+                                        </div>
+                                        <div>
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <h2 style={styles.resourceTitle}>{resource.title}</h2>
+                                                <span style={styles.badge(resource.type)}>
+                                                    {resource.type}
+                                                </span>
+                                            </div>
+                                            <p style={styles.dateText}>
+                                                Last updated: {format(resource.lastUpdated, 'MMMM d, yyyy')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleDownload(resource.id)}
+                                        style={{ fontWeight: '600', color: '#4b5563' }}
+                                    >
+                                        <Download size={16} style={{ marginRight: '0.5rem' }} />
+                                        Download PDF
+                                    </Button>
+                                </div>
+                            </CardHeader>
+                            <CardBody>
+                                <div style={{ maxWidth: '56rem' }}> {/* max-w-4xl */}
+                                    <p style={styles.quoteBox}>
+                                        "{resource.content}"
+                                    </p>
 
-                    }}
-                >
-                    <Download size={20} className="mr-2" />
-                    Download PDF
-                </button>
+                                    <div style={styles.sectionsGrid}>
+                                        {resource.sections.map((section, idx) => (
+                                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingBottom: '0.5rem', borderBottom: '1px solid #f3f4f6' }}>
+                                                    {section.icon && IconMap[section.icon] ? (
+                                                        <div style={{ padding: '0.375rem', backgroundColor: '#f3f4f6', borderRadius: '0.375rem' }}>
+                                                            {IconMap[section.icon]}
+                                                        </div>
+                                                    ) : null}
+                                                    <h3 style={styles.sectionTitle}>{section.title}</h3>
+                                                </div>
+                                                <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: 0, margin: 0, listStyle: 'none' }}>
+                                                    {section.items.map((item, itemIdx) => (
+                                                        <li key={itemIdx} style={styles.listItem}>
+                                                            <CheckCircle2 size={18} color="#22c55e" style={{ marginTop: '0.125rem', flexShrink: 0 }} />
+                                                            <span style={{ color: '#374151', lineHeight: '1.375' }}>{item}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    ))
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '5rem 0', backgroundColor: '#f9fafb', borderRadius: '1.5rem', border: '2px dashed #e5e7eb' }}>
+                        <div style={{ margin: '0 auto', width: '4rem', height: '4rem', backgroundColor: '#f3f4f6', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', marginBottom: '1rem' }}>
+                            <Search size={32} />
+                        </div>
+                        <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: '#1f2937' }}>No resources found</h3>
+                        <p style={{ color: '#6b7280', marginTop: '0.25rem' }}>Try adjusting your search or filters to find what you're looking for.</p>
+                        <Button
+                            variant="secondary"
+                            style={{ mt: '1.5rem' }}
+                            onClick={() => { setActiveTab('All'); setSearchQuery(''); }}
+                        >
+                            Reset all filters
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     );
