@@ -7,8 +7,8 @@ import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import CMS from './pages/CMS';
 import Reports from './pages/Reports';
-import ProfileSettings from './pages/ProfileSettings';
 import SafetyGuidelines from './pages/SafetyGuidelines';
+import ProfileSettings from './pages/ProfileSettings';
 
 import UserManagement from './pages/UserManagement';
 
@@ -21,9 +21,13 @@ function App() {
           <Route path="analytics" element={<Analytics />} />
           <Route path="cms" element={<CMS />} />
           <Route path="reports" element={<Reports />} />
+<<<<<<< HEAD
 
           <Route path="admin/users" element={<UserManagement />} />
           <Route path="safety" element={<SafetyGuidelines />} />
+=======
+          <Route path="safety-guidelines" element={<SafetyGuidelines />} />
+>>>>>>> e374bc096e07ce1c3da1946a0988cb328371324f
           <Route path="profile" element={<ProfileSettings />} />
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
