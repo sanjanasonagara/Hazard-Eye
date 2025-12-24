@@ -63,8 +63,8 @@ export const IncidentTrendChart: React.FC<IncidentTrendChartProps> = ({ incident
               key={range}
               onClick={() => setTimeRange(range)}
               className={`px-3 py-1 text-sm font-medium rounded transition-colors ${timeRange === range
-                ? 'bg-white text-primary-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-primary-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
                 }`}
             >
               {range}
@@ -72,38 +72,36 @@ export const IncidentTrendChart: React.FC<IncidentTrendChartProps> = ({ incident
           ))}
         </div>
       </div>
-      <div className="h-[200px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis
-              dataKey="date"
-              tick={{ fontSize: 12 }}
-              stroke="#6b7280"
-              angle={-45}
-              textAnchor="end"
-              height={60}
-            />
-            <YAxis tick={{ fontSize: 12 }} stroke="#6b7280" />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: '#fff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                padding: '8px',
-              }}
-            />
-            <Line
-              type="monotone"
-              dataKey="count"
-              stroke="#0ea5e9"
-              strokeWidth={2}
-              dot={{ fill: '#0ea5e9', r: 4 }}
-              activeDot={{ r: 6 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis
+            dataKey="date"
+            tick={{ fontSize: 12 }}
+            stroke="#6b7280"
+            angle={-45}
+            textAnchor="end"
+            height={60}
+          />
+          <YAxis tick={{ fontSize: 12 }} stroke="#6b7280" />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#fff',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              padding: '8px',
+            }}
+          />
+          <Line
+            type="monotone"
+            dataKey="count"
+            stroke="#0ea5e9"
+            strokeWidth={2}
+            dot={{ fill: '#0ea5e9', r: 4 }}
+            activeDot={{ r: 6 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 };

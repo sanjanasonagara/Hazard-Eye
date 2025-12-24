@@ -112,7 +112,7 @@ export const RepeatIncidentsChart: React.FC<RepeatIncidentsChartProps> = ({ inci
         </button>
       </div>
 
-      <div className="h-[200px] w-full">
+      <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
           {view === 'type' ? (
             <BarChart data={repeatDataByType} margin={{ top: 10, right: 24, left: 8, bottom: 40 }}>
