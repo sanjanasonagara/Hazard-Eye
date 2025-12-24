@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Download, 
-  Calendar, 
-  MapPin, 
-  Building2, 
+import {
+  ArrowLeft,
+  Download,
   AlertCircle,
-  CheckCircle2,
+  Calendar,
   Maximize2
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -23,11 +20,15 @@ import { format } from 'date-fns';
 export const IncidentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { state } = useApp();
+  const { state, getFilteredTasks } = useApp();
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'analysis' | 'tasks'>('overview');
 
   const incident = state.incidents.find(i => i.id === id);
+  // Get tasks related to this incident
+  const filteredTasks = getFilteredTasks(); // Get all visible tasks first
+  const relatedTasks = filteredTasks.filter(t => t.incidentId === id);
 
   if (!incident) {
     return (
@@ -68,7 +69,7 @@ export const IncidentDetail: React.FC = () => {
             onClick={handleDownloadReport}
           >
             <Download className="w-4 h-4 mr-2" />
-            Download Report
+            Download
           </Button>
           {state.currentUser.role === 'supervisor' && (
             <Button onClick={() => setShowTaskModal(true)}>
@@ -78,144 +79,172 @@ export const IncidentDetail: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Image - Reduced Size */}
-          <Card>
-            <CardBody>
-              <div className="relative group">
-                <img
-                  src={incident.imageUrl}
-                  alt="Incident"
-                  className="w-full max-w-2xl mx-auto h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={() => setShowImageModal(true)}
-                />
-                <button
-                  onClick={() => setShowImageModal(true)}
-                  className="absolute top-4 right-4 bg-white/90 hover:bg-white px-3 py-2 rounded-lg shadow-sm flex items-center gap-2 text-sm font-medium text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Maximize2 className="w-4 h-4" />
-                  Expand
-                </button>
-              </div>
-            </CardBody>
-          </Card>
+      {/* Tabs Layout */}
+      <div className="border-b border-gray-200 mb-6">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`
+              whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+              ${activeTab === 'overview'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+            `}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('analysis')}
+            className={`
+              whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+              ${activeTab === 'analysis'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+            `}
+          >
+            AI Analysis
+          </button>
+          <button
+            onClick={() => setActiveTab('tasks')}
+            className={`
+              whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+              ${activeTab === 'tasks'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+            `}
+          >
+            Related Tasks ({relatedTasks.length})
+          </button>
+        </nav>
+      </div>
 
-          {/* Description */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900">Description</h2>
-            </CardHeader>
-            <CardBody>
-              <p className="text-gray-700 leading-relaxed">{incident.description}</p>
-            </CardBody>
-          </Card>
+      <div className="grid grid-cols-1 gap-6">
+        {activeTab === 'overview' && (
+          <Card className="overflow-hidden border-gray-200 shadow-sm">
+            <CardBody className="p-0">
+              <div className="flex flex-col lg:flex-row">
+                {/* Unified Left: Image & Description */}
+                <div className="lg:w-2/3 p-6 flex flex-col gap-6 border-b lg:border-b-0 lg:border-r border-gray-100">
+                  <div className="flex flex-col sm:flex-row gap-6 items-start">
+                    {/* Visual supporting image */}
+                    <div className="w-full sm:w-48 shrink-0">
+                      <div className="relative group aspect-square">
+                        <img
+                          src={incident.imageUrl}
+                          alt="Incident"
+                          className="w-full h-full object-cover rounded-lg border border-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setShowImageModal(true)}
+                        />
+                        <button
+                          onClick={() => setShowImageModal(true)}
+                          className="absolute bottom-2 right-2 bg-white/90 hover:bg-white p-1 rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5 text-gray-600" />
+                        </button>
+                      </div>
+                    </div>
 
-          {/* AI Summary */}
-          {incident.aiSummary && (
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-primary-600" />
-                  <h2 className="text-lg font-semibold text-gray-900">AI Analysis Summary</h2>
-                </div>
-              </CardHeader>
-              <CardBody>
-                <p className="text-gray-700 leading-relaxed">{incident.aiSummary}</p>
-              </CardBody>
-            </Card>
-          )}
-
-          {/* AI Recommendation */}
-          {incident.aiRecommendation && (
-            <AIRecommendationPanel recommendation={incident.aiRecommendation} />
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Status Card */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900">Status & Details</h2>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-500">Severity</label>
-                <div className="mt-1">
-                  <Badge variant={incident.severity}>{incident.severity}</Badge>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-500">Status</label>
-                <div className="mt-1">
-                  <Badge variant={incident.status}>{incident.status}</Badge>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-500">Department</label>
-                <p className="mt-1 text-gray-900 font-medium">{incident.department}</p>
-              </div>
-            </CardBody>
-          </Card>
-
-          {/* Location Card */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900">Location</h2>
-            </CardHeader>
-            <CardBody className="space-y-3">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{incident.area}</p>
-                  <p className="text-xs text-gray-500">Area</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Building2 className="w-5 h-5 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{incident.plant}</p>
-                  <p className="text-xs text-gray-500">Plant</p>
-                </div>
-              </div>
-
-              {incident.unit && (
-                <div className="flex items-start gap-3">
-                  <Building2 className="w-5 h-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{incident.unit}</p>
-                    <p className="text-xs text-gray-500">Unit</p>
+                    {/* Description integrated tightly */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Description</h3>
+                      <p className="text-sm text-gray-700 leading-relaxed text-pretty">
+                        {incident.description}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              )}
-            </CardBody>
-          </Card>
 
-          {/* Date & Time Card */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900">Date & Time</h2>
-            </CardHeader>
-            <CardBody>
-              <div className="flex items-start gap-3">
-                <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {format(incident.dateTime, 'MMMM d, yyyy')}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {format(incident.dateTime, 'h:mm a')}
-                  </p>
+                {/* Unified Right: Metadata grid */}
+                <div className="lg:w-1/3 bg-gray-50/50 p-6">
+                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Incident Metadata</h3>
+                  <div className="grid grid-cols-2 gap-y-4 gap-x-4">
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-medium text-gray-500 uppercase">Status</p>
+                      <Badge variant={incident.status} className="px-2 py-0.5 text-[10px] uppercase font-bold tracking-tight">
+                        {incident.status}
+                      </Badge>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-medium text-gray-500 uppercase">Severity</p>
+                      <Badge variant={incident.severity} className="px-2 py-0.5 text-[10px] uppercase font-bold tracking-tight">
+                        {incident.severity}
+                      </Badge>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-medium text-gray-500 uppercase">Department</p>
+                      <p className="text-sm font-semibold text-gray-900">{incident.department}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-medium text-gray-500 uppercase">Area / Plant</p>
+                      <p className="text-sm text-gray-700">{incident.area}</p>
+                      <p className="text-xs text-gray-500">{incident.plant}</p>
+                    </div>
+                    <div className="col-span-2 space-y-1 pt-2 border-t border-gray-200/50">
+                      <p className="text-[11px] font-medium text-gray-500 uppercase">Reported At</p>
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                        {format(incident.dateTime, 'MMM d, yyyy h:mm a')}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardBody>
           </Card>
-        </div>
+        )}
+
+        {activeTab === 'analysis' && (
+          <div className="space-y-6">
+            {incident.aiSummary && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 text-primary-600" />
+                    <h2 className="text-lg font-semibold text-gray-900">AI Summary</h2>
+                  </div>
+                </CardHeader>
+                <CardBody>
+                  <p className="text-gray-700 leading-relaxed">{incident.aiSummary}</p>
+                </CardBody>
+              </Card>
+            )}
+            {incident.aiRecommendation && (
+              <AIRecommendationPanel recommendation={incident.aiRecommendation} />
+            )}
+          </div>
+        )}
+
+        {activeTab === 'tasks' && (
+          <div className="space-y-4">
+            {relatedTasks.length === 0 ? (
+              <Card>
+                <CardBody className="text-center py-8 text-gray-500">
+                  No tasks linked to this incident.
+                </CardBody>
+              </Card>
+            ) : (
+              relatedTasks.map(task => (
+                <Card key={task.id} className="hover:shadow-md transition-shadow">
+                  <CardBody>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{task.description}</h3>
+                        <div className="flex gap-2 mt-2">
+                          <Badge variant={task.status}>{task.status}</Badge>
+                          <Badge variant={task.priority}>{task.priority}</Badge>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-2">Assigned to: {task.assignedToName}</p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => navigate(`/tasks/${task.id}`)}>
+                        View Task
+                      </Button>
+                    </div>
+                  </CardBody>
+                </Card>
+              ))
+            )}
+          </div>
+        )}
       </div>
 
       {showTaskModal && (

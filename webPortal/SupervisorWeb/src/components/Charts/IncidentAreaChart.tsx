@@ -78,7 +78,7 @@ export const IncidentAreaChart: React.FC<IncidentAreaChartProps> = ({ incidents 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
       {/* Static Leaflet map for spatial context */}
-      <div className="h-72 rounded-lg border border-slate-200 overflow-hidden relative">
+      <div className="h-full min-h-[300px] rounded-lg border border-slate-200 overflow-hidden relative">
         {/* <MapContainer
           center={[22.3735, 73.111]}
           zoom={14}
@@ -92,10 +92,10 @@ export const IncidentAreaChart: React.FC<IncidentAreaChartProps> = ({ incidents 
           boxZoom={false}
         > */}
         <MapContainer
-  center={[22.3735, 73.111]}
-  zoom={14}
-  style={{ height: '100%', width: '100%' }}
->
+          center={[22.3735, 73.111]}
+          zoom={14}
+          style={{ height: '100%', width: '100%' }}
+        >
 
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -134,7 +134,7 @@ export const IncidentAreaChart: React.FC<IncidentAreaChartProps> = ({ incidents 
       </div>
 
       {/* Bar chart view */}
-      <div className="h-72">
+      <div className="h-full min-h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 20, right: 24, left: 8, bottom: 56 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />

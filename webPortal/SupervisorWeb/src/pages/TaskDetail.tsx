@@ -29,8 +29,10 @@ export const TaskDetail: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDelayModal, setShowDelayModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'resolution' | 'incident'>('overview');
 
   const task = state.tasks.find(t => t.id === id);
+  const linkedIncident = task?.incidentId ? state.incidents.find(i => i.id === task.incidentId) : null;
 
   if (!task) {
     return (
@@ -70,9 +72,7 @@ export const TaskDetail: React.FC = () => {
   const handleDelaySubmit = () => {
     if (!canUpdateStatus) return;
     if (!delayReason.trim()) return;
-
     const parsedDelayDate = new Date(delayDate);
-
     updateTaskStatus(task.id, 'Delayed', delayReason.trim(), parsedDelayDate);
     setShowDelayModal(false);
     setDelayReason('');
@@ -80,7 +80,6 @@ export const TaskDetail: React.FC = () => {
 
   const handleAddComment = () => {
     if (!comment.trim()) return;
-    
     addTaskComment(task.id, {
       taskId: task.id,
       userId: state.currentUser.id,
@@ -88,7 +87,6 @@ export const TaskDetail: React.FC = () => {
       userRole: state.currentUser.role,
       content: comment,
     });
-
     setComment('');
     setShowCommentModal(false);
   };
@@ -177,7 +175,7 @@ export const TaskDetail: React.FC = () => {
             onClick={handleDeleteTask}
             disabled={isDeleting}
           >
-            Delete Task
+            Delete
           </Button>
           {canUpdateStatus && isOverdue && task.status !== 'Completed' && (
             <Button
@@ -199,213 +197,294 @@ export const TaskDetail: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Task Description */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900">Description</h2>
-            </CardHeader>
-            <CardBody>
-              <p className="text-gray-700 leading-relaxed">{task.description}</p>
-            </CardBody>
-          </Card>
+      {/* Tabs Layout */}
+      <div className="border-b border-gray-200 mb-6">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`
+              whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+              ${activeTab === 'overview'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+            `}
+          >
+            Task Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('resolution')}
+            className={`
+              whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+              ${activeTab === 'resolution'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+            `}
+          >
+            Resolution Details
+          </button>
+          <button
+            onClick={() => setActiveTab('incident')}
+            className={`
+              whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+              ${activeTab === 'incident'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+            `}
+          >
+            Linked Incident ({linkedIncident ? '1' : '0'})
+          </button>
+        </nav>
+      </div>
 
-          {/* Precautions */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-warning-600" />
-                <h2 className="text-lg font-semibold text-gray-900">Precautions & Advisory</h2>
-              </div>
-            </CardHeader>
-            <CardBody>
-              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                {task.precautions}
-              </p>
-            </CardBody>
-          </Card>
+      <div className="grid grid-cols-1 gap-6">
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                {/* Task Description */}
+                <Card>
+                  <CardHeader>
+                    <h2 className="text-lg font-semibold text-gray-900">Description</h2>
+                  </CardHeader>
+                  <CardBody>
+                    <p className="text-gray-700 leading-relaxed">{task.description}</p>
+                  </CardBody>
+                </Card>
 
-          {/* Delay History (Task Details only) */}
-          {(() => {
-            const history =
-              task.delayHistory && task.delayHistory.length > 0
-                ? [...task.delayHistory]
-                : task.delayReason && task.delayDate
-                ? [
-                    {
-                      reason: task.delayReason,
-                      date: task.delayDate,
-                    },
-                  ]
-                : [];
-
-            if (history.length === 0) return null;
-
-            // Oldest first
-            history.sort((a, b) => a.date.getTime() - b.date.getTime());
-
-            return (
-              <Card className="border-l-4 border-l-warning-500">
-                <CardHeader>
-                  <h2 className="text-lg font-semibold text-warning-900">Delay History</h2>
-                </CardHeader>
-                <CardBody className="space-y-4">
-                  {history.map((entry, index) => (
-                    <div key={index} className="space-y-1">
-                      <p className="text-warning-800">
-                        <span className="font-medium">Delay Reason:</span>{' '}
-                        {entry.reason}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {format(
-                          entry.date,
-                          state.currentUser.role === 'employee'
-                            ? 'MMM d, yyyy'
-                            : 'MMM d, yyyy h:mm a'
-                        )}{' '}
-                        • {formatRelativeTime(entry.date)}
-                      </p>
+                {/* Precautions */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5 text-warning-600" />
+                      <h2 className="text-lg font-semibold text-gray-900">Precautions & Advisory</h2>
                     </div>
-                  ))}
+                  </CardHeader>
+                  <CardBody>
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                      {task.precautions}
+                    </p>
+                  </CardBody>
+                </Card>
+
+                {/* Comments / Activity Feed */}
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <h2 className="text-lg font-semibold text-gray-900">Comments & Activity</h2>
+                    <Button variant="outline" size="sm" onClick={() => setShowCommentModal(true)}>
+                      <MessageSquare className="w-4 h-4 mr-2" /> Add Comment
+                    </Button>
+                  </CardHeader>
+                  <CardBody>
+                    {task.comments.length === 0 ? (
+                      <p className="text-gray-500 text-center py-8">No comments yet</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {task.comments
+                          .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+                          .map(comment => (
+                            <div
+                              key={comment.id}
+                              className="border-l-4 border-l-primary-500 pl-4 py-2"
+                            >
+                              <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-gray-900">
+                                    {comment.userName}
+                                  </span>
+                                  <Badge variant="default" className="text-xs">
+                                    {comment.userRole}
+                                  </Badge>
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {format(comment.timestamp, 'MMM d, yyyy h:mm a')}
+                                  {(state.currentUser.role === 'employee' ||
+                                    comment.userRole === 'supervisor') && (
+                                      <> • {formatRelativeTime(comment.timestamp)}</>
+                                    )}
+                                </span>
+                              </div>
+                              <p className="text-gray-700 text-sm">{comment.content}</p>
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </CardBody>
+                </Card>
+              </div>
+
+              {/* Delay History Sidebar */}
+              <div className="space-y-6">
+                {(() => {
+                  const history =
+                    task.delayHistory && task.delayHistory.length > 0
+                      ? [...task.delayHistory]
+                      : task.delayReason && task.delayDate
+                        ? [
+                          {
+                            reason: task.delayReason,
+                            date: task.delayDate,
+                          },
+                        ]
+                        : [];
+
+                  if (history.length === 0) return (
+                    <Card className="bg-gray-50/50 border-dashed">
+                      <CardBody className="py-8 text-center">
+                        <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                        <p className="text-sm font-medium text-gray-500">No Delays Recorded</p>
+                      </CardBody>
+                    </Card>
+                  );
+
+                  history.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+                  return (
+                    <Card className="border-l-4 border-l-warning-500">
+                      <CardHeader className="pb-2">
+                        <h2 className="text-sm font-bold text-warning-900 uppercase tracking-wider">Delay History</h2>
+                      </CardHeader>
+                      <CardBody className="space-y-4">
+                        {history.map((entry, index) => (
+                          <div key={index} className="space-y-1 pb-3 border-b border-warning-100 last:border-0 last:pb-0">
+                            <p className="text-sm text-warning-800 font-medium">
+                              {entry.reason}
+                            </p>
+                            <p className="text-[10px] text-gray-500 font-mono">
+                              {format(entry.date, 'MMM d, yyyy h:mm a')}
+                            </p>
+                          </div>
+                        ))}
+                      </CardBody>
+                    </Card>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'resolution' && (
+          <Card>
+            <CardHeader>
+              <h2 className="text-lg font-semibold text-gray-900">Task Metadata & Resolution Info</h2>
+            </CardHeader>
+            <CardBody className="p-0">
+              <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                {/* Section: Assignment */}
+                <div className="p-6 space-y-4">
+                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Assignment</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <User className="w-4 h-4 text-primary-500 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900 truncate">{task.assignedToName}</p>
+                        <p className="text-[10px] text-gray-400 uppercase font-medium">Assigned To</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <User className="w-4 h-4 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 truncate">{task.createdByName}</p>
+                        <p className="text-[10px] text-gray-400 uppercase font-medium">Created By</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Clock className="w-4 h-4 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">{format(task.createdAt, 'MMM d, yyyy')}</p>
+                        <p className="text-[10px] text-gray-400 uppercase font-medium">Created On</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: Location */}
+                <div className="p-6 space-y-4">
+                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Location Info</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{task.area}</p>
+                        <p className="text-[10px] text-gray-400 uppercase font-medium">Area / Section</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Building2 className="w-4 h-4 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">{task.plant}</p>
+                        <p className="text-[10px] text-gray-400 uppercase font-medium">Plant / Facility</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: Priority & Risk */}
+                <div className="p-6 space-y-4 bg-gray-50/30">
+                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Priority & Risk</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-[10px] text-gray-400 uppercase font-medium mb-1">Task Priority</p>
+                      <Badge variant={task.priority} className="px-3 py-1 font-bold text-xs">
+                        {task.priority}
+                      </Badge>
+                    </div>
+                    {isOverdue && (
+                      <div className="p-3 bg-red-50 border border-red-100 rounded-lg flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-red-600" />
+                        <p className="text-xs font-bold text-red-700 uppercase tracking-tight">Overdue Task</p>
+                      </div>
+                    )}
+                    {!isOverdue && task.status === 'Completed' && (
+                      <div className="p-3 bg-green-50 border border-green-100 rounded-lg flex items-center gap-2">
+                        <Badge variant="Completed" className="px-2 py-0.5 text-[10px] uppercase font-bold tracking-tight">Resolved</Badge>
+                        <p className="text-xs font-bold text-green-700 uppercase tracking-tight">Successfully</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
+        {activeTab === 'incident' && (
+          <div>
+            {linkedIncident ? (
+              <Card className="hover:shadow-md transition-shadow">
+                <CardBody>
+                  <div className="flex items-start gap-4">
+                    <div className="w-24 h-24 flex-shrink-0">
+                      <img
+                        src={linkedIncident.imageUrl}
+                        alt="Incident"
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{linkedIncident.department} Issue</h3>
+                      <p className="text-gray-600 mb-2 line-clamp-2">{linkedIncident.description}</p>
+                      <div className="flex gap-2 mb-3">
+                        <Badge variant={linkedIncident.severity}>{linkedIncident.severity}</Badge>
+                        <Badge variant={linkedIncident.status}>{linkedIncident.status}</Badge>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => navigate(`/incidents/${linkedIncident.id}`)}>
+                        View Full Incident
+                      </Button>
+                    </div>
+                  </div>
                 </CardBody>
               </Card>
-            );
-          })()}
-
-          {/* Comments / Activity Feed */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900">Comments & Activity</h2>
-            </CardHeader>
-            <CardBody>
-              {task.comments.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No comments yet</p>
-              ) : (
-                <div className="space-y-4">
-                  {task.comments
-                    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-                    .map(comment => (
-                      <div
-                        key={comment.id}
-                        className="border-l-4 border-l-primary-500 pl-4 py-2"
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-900">
-                              {comment.userName}
-                            </span>
-                            <Badge variant="default" className="text-xs">
-                              {comment.userRole}
-                            </Badge>
-                          </div>
-                          <span className="text-xs text-gray-500">
-                            {format(comment.timestamp, 'MMM d, yyyy h:mm a')}
-                            {(state.currentUser.role === 'employee' ||
-                              comment.userRole === 'supervisor') && (
-                              <> • {formatRelativeTime(comment.timestamp)}</>
-                            )}
-                          </span>
-                        </div>
-                        <p className="text-gray-700">{comment.content}</p>
-                      </div>
-                    ))}
-                </div>
-              )}
-            </CardBody>
-          </Card>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Priority & Risk Card */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900">Priority & Risk</h2>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-500">Priority</label>
-                <div className="mt-1">
-                  <Badge variant={task.priority}>{task.priority}</Badge>
-                </div>
-              </div>
-
-              {isOverdue && (
-                <div className="p-3 bg-danger-50 border border-danger-200 rounded-lg">
-                  <p className="text-sm font-medium text-danger-900">
-                    This task is overdue
-                  </p>
-                </div>
-              )}
-            </CardBody>
-          </Card>
-
-          {/* Assignment Card */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900">Assignment</h2>
-            </CardHeader>
-            <CardBody className="space-y-3">
-              <div className="flex items-start gap-3">
-                <User className="w-5 h-5 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {task.assignedToName}
-                  </p>
-                  <p className="text-xs text-gray-500">Assigned To</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <User className="w-5 h-5 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {task.createdByName}
-                  </p>
-                  <p className="text-xs text-gray-500">Created By</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {format(task.createdAt, 'MMM d, yyyy')}
-                  </p>
-                  <p className="text-xs text-gray-500">Created On</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-
-          {/* Location Card */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900">Location</h2>
-            </CardHeader>
-            <CardBody className="space-y-3">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{task.area}</p>
-                  <p className="text-xs text-gray-500">Area</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Building2 className="w-5 h-5 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{task.plant}</p>
-                  <p className="text-xs text-gray-500">Plant</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-
-          {/* Due Date Card removed – information surfaced in top header */}
-        </div>
+            ) : (
+              <Card>
+                <CardBody className="text-center py-12 text-gray-500">
+                  <AlertCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p>This task is not linked to any specific incident.</p>
+                </CardBody>
+              </Card>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Delay Modal (employees only) */}

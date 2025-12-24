@@ -97,24 +97,22 @@ export const RepeatIncidentsChart: React.FC<RepeatIncidentsChartProps> = ({ inci
         <button
           type="button"
           onClick={() => setView('area')}
-          className={`px-3 py-1 rounded-full transition-colors ${
-            view === 'area' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'
-          }`}
+          className={`px-3 py-1 rounded-full transition-colors ${view === 'area' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'
+            }`}
         >
           By Area
         </button>
         <button
           type="button"
           onClick={() => setView('type')}
-          className={`px-3 py-1 rounded-full transition-colors ${
-            view === 'type' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'
-          }`}
+          className={`px-3 py-1 rounded-full transition-colors ${view === 'type' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'
+            }`}
         >
           By Incident Type
         </button>
       </div>
 
-      <div className="h-72">
+      <div className="h-[200px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           {view === 'type' ? (
             <BarChart data={repeatDataByType} margin={{ top: 10, right: 24, left: 8, bottom: 40 }}>

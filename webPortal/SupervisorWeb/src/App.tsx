@@ -9,7 +9,6 @@ import { TaskDetail } from './pages/TaskDetail';
 import ProfileSettings from './pages/ProfileSettings';
 
 import { SafetyResources } from './pages/SafetyResources';
-import { Training } from './pages/Training';
 
 function App() {
   return (
@@ -23,7 +22,6 @@ function App() {
             <Route path="tasks" element={<Tasks />} />
             <Route path="tasks/:id" element={<TaskDetail />} />
             <Route path="safety-resources" element={<SafetyResources />} />
-            <Route path="training" element={<Training />} />
             <Route path="profile" element={<ProfileSettings />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

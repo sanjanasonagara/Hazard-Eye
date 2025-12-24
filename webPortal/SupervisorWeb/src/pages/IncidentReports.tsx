@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, MapPin, Building2, Filter, Brain } from 'lucide-react';
+import { Filter } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { IncidentFilters } from '../components/Filters/IncidentFilters';
 import { CumulativeAISummary } from '../components/CumulativeAISummary';
-import { AIRecommendationModal } from '../components/AIRecommendationModal';
 import { Card, CardBody } from '../components/UI/Card';
 import { Badge } from '../components/UI/Badge';
 import { Button } from '../components/UI/Button';
-import { Incident } from '../types';
 import { format } from 'date-fns';
 
 export const IncidentReports: React.FC = () => {
   const { getFilteredIncidents, state } = useApp();
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
-  const [showRecommendationModal, setShowRecommendationModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   let incidents = getFilteredIncidents();
 
@@ -38,12 +33,6 @@ export const IncidentReports: React.FC = () => {
     });
   }
 
-  const handleViewRecommendation = (e: React.MouseEvent, incident: Incident) => {
-    e.stopPropagation();
-    setSelectedIncident(incident);
-    setShowRecommendationModal(true);
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
@@ -51,28 +40,6 @@ export const IncidentReports: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Incident Reports</h1>
             <p className="text-gray-600 mt-1">View and manage safety incidents</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                viewMode === 'grid'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Grid
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              List
-            </button>
           </div>
         </div>
 
@@ -117,95 +84,99 @@ export const IncidentReports: React.FC = () => {
           </CardBody>
         </Card>
       ) : (
-        <div
-          className={
-            viewMode === 'grid'
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-              : 'space-y-4'
-          }
-        >
-          {incidents.map(incident => (
-            <Card
-              key={incident.id}
-              onClick={() => navigate(`/incidents/${incident.id}`)}
-              className={viewMode === 'list' ? 'flex flex-row' : ''}
-            >
-              <div className={viewMode === 'list' ? 'flex-shrink-0' : ''}>
-                <img
-                  src={incident.imageUrl}
-                  alt="Incident"
-                  className={
-                    viewMode === 'list'
-                      ? 'w-32 h-32 object-cover rounded-l-lg'
-                      : 'w-full h-48 object-cover rounded-t-lg'
-                  }
-                />
-              </div>
-              <CardBody className={viewMode === 'list' ? 'flex-1' : ''}>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant={incident.severity}>{incident.severity}</Badge>
-                    <Badge variant={incident.status}>{incident.status}</Badge>
-                  </div>
-                </div>
-
-                <h3 className="font-semibold text-gray-900 mb-2">
-                  {incident.department} Issue
-                </h3>
-
-                <p className="text-sm text-gray-600 line-clamp-2 mb-4">
-                  {incident.description}
-                </p>
-
-                <div className="space-y-2 text-sm text-gray-500 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>{format(incident.dateTime, 'MMM d, yyyy h:mm a')}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    <span>{incident.area}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4" />
-                    <span>{incident.plant}</span>
-                    {incident.unit && <span className="text-gray-400">• {incident.unit}</span>}
-                  </div>
-                </div>
-
-                {incident.aiRecommendation && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleViewRecommendation(e, incident)}
-                    className="w-full"
+        <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="w-full overflow-hidden">
+            <table className="w-full divide-y divide-gray-200 table-fixed">
+              <thead className="bg-[#030d29] text-white">
+                <tr>
+                  <th scope="col" className="w-[40px] px-3 py-4 text-left text-[10px] font-bold uppercase tracking-wider">
+                    #
+                  </th>
+                  <th scope="col" className="w-[80px] px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th scope="col" className="w-[60px] px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider">
+                    Image
+                  </th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">
+                    Incident Name
+                  </th>
+                  <th scope="col" className="w-[110px] px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th scope="col" className="w-[100px] px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th scope="col" className="w-[130px] px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">
+                    Dept
+                  </th>
+                  <th scope="col" className="w-[90px] px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-100">
+                {incidents.map((incident, index) => (
+                  <tr
+                    key={incident.id}
+                    className="hover:bg-gray-50 transition-colors cursor-pointer group"
+                    onClick={() => navigate(`/incidents/${incident.id}`)}
                   >
-                    <Brain className="w-4 h-4 mr-2" />
-                    View AI Recommendation
-                  </Button>
-                )}
-              </CardBody>
-            </Card>
-          ))}
+                    <td className="px-3 py-4 whitespace-nowrap text-[11px] font-medium text-gray-400">
+                      {index + 1}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-[11px] font-mono text-gray-500 truncate">
+                      {incident.id.substring(0, 8)}
+                    </td>
+                    <td className="px-2 py-4 whitespace-nowrap text-center">
+                      <img
+                        src={incident.imageUrl}
+                        alt=""
+                        className="w-8 h-8 rounded object-cover mx-auto ring-1 ring-gray-200"
+                      />
+                    </td>
+                    <td className="px-6 py-4 min-w-0">
+                      <div className="text-sm font-medium text-gray-900 truncate" title={incident.description}>
+                        {incident.description}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {format(incident.dateTime, 'MMM d, yyyy')}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <Badge variant={incident.status} className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-tight truncate max-w-full inline-block">
+                        {incident.status}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 truncate">
+                      {incident.department}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="transition-all active:scale-95 shadow-sm"
+                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                          e.stopPropagation();
+                          navigate(`/incidents/${incident.id}`);
+                        }}
+                      >
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {incidents.length > 0 && (
-        <div className="text-center text-sm text-gray-500">
+        <div className="mt-4 text-center text-sm text-gray-500">
           Showing {incidents.length} incident{incidents.length !== 1 ? 's' : ''}
         </div>
       )}
-
-      {/* AI Recommendation Modal */}
-      <AIRecommendationModal
-        isOpen={showRecommendationModal}
-        onClose={() => {
-          setShowRecommendationModal(false);
-          setSelectedIncident(null);
-        }}
-        incident={selectedIncident}
-      />
     </div>
   );
 };
-

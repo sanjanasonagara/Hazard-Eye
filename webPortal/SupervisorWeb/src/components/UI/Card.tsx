@@ -9,7 +9,7 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ children, className = '', onClick }) => {
   const baseClasses = 'bg-white rounded-lg border border-gray-200 shadow-sm';
   const interactiveClasses = onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : '';
-  
+
   return (
     <div
       className={`${baseClasses} ${interactiveClasses} ${className}`}
@@ -33,14 +33,14 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ children, className = ''
   );
 };
 
-interface CardBodyProps {
+interface CardBodyProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
 }
 
-export const CardBody: React.FC<CardBodyProps> = ({ children, className = '' }) => {
+export const CardBody: React.FC<CardBodyProps> = ({ children, className = '', ...rest }) => {
   return (
-    <div className={`px-6 py-4 ${className}`}>
+    <div className={`px-6 py-4 ${className}`} {...rest}>
       {children}
     </div>
   );
