@@ -62,11 +62,10 @@ export const IncidentTrendChart: React.FC<IncidentTrendChartProps> = ({ incident
             <button
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                timeRange === range
+              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${timeRange === range
                   ? 'bg-white text-primary-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
-              }`}
+                }`}
             >
               {range}
             </button>

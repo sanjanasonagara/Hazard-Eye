@@ -92,10 +92,10 @@ export const IncidentAreaChart: React.FC<IncidentAreaChartProps> = ({ incidents 
           boxZoom={false}
         > */}
         <MapContainer
-  center={[22.3735, 73.111]}
-  zoom={14}
-  style={{ height: '100%', width: '100%' }}
->
+          center={[22.3735, 73.111]}
+          zoom={14}
+          style={{ height: '100%', width: '100%' }}
+        >
 
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

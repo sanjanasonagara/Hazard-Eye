@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, ClipboardList, TrendingUp, Clock, BarChart3, MapPin, Activity, AlertCircle } from 'lucide-react';
+import { AlertTriangle, ClipboardList, TrendingUp, Clock, BarChart3, MapPin, Activity, AlertCircle, Download } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Card, CardBody, CardHeader } from '../components/UI/Card';
 import { Badge } from '../components/UI/Badge';
@@ -12,8 +12,98 @@ import { format } from 'date-fns';
 
 export const Dashboard: React.FC = () => {
   const { getFilteredIncidents, getFilteredTasks, state } = useApp();
+  const [activeExportMenu, setActiveExportMenu] = React.useState<string | null>(null);
   const incidents = getFilteredIncidents();
   const tasks = getFilteredTasks();
+
+  const handleExport = (chartName: string, formatType: 'csv' | 'svg') => {
+    const timestamp = format(new Date(), 'yyyy-MM-dd');
+    const filename = `${chartName.toLowerCase().replace(/\s+/g, '-')}-${timestamp}`;
+
+    if (formatType === 'csv') {
+      const csvContent = "data:text/csv;charset=utf-8,"
+        + "Date,Description,Area,Severity,Status\n"
+        + incidents.map(i => `${i.dateTime},${i.description?.substring(0, 30) || 'N/A'},${i.area},${i.severity},${i.status}`).join("\n");
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `${filename}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (formatType === 'svg') {
+      const containerSelector = `[data-chart-container="${chartName}"]`;
+      const chartContainer = document.querySelector(containerSelector);
+
+      if (chartContainer) {
+        // Find the main chart SVG
+        // Priority 1: Recharts surface (most charts)
+        // Priority 2: Generic SVG (fallback)
+        // We explicitly avoid Leaflet maps which might be in the same container (IncidentAreaChart)
+        const svgElement = chartContainer.querySelector('.recharts-surface') || chartContainer.querySelector('svg');
+
+        if (svgElement) {
+          // Clone the svg to modify it for export without affecting the UI
+          const svgClone = svgElement.cloneNode(true) as SVGElement;
+
+          // Get original dimensions to ensure the export isn't 0x0
+          const bounds = svgElement.getBoundingClientRect();
+          const width = bounds.width || 800;
+          const height = bounds.height || 400;
+
+          // Set necessary namespaces and dimensions explicitly
+          svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+          // Some browsers/libraries don't add this automatically during clone, ensuring it's there
+          if (!svgClone.hasAttribute('xmlns:xlink')) {
+            svgClone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+          }
+
+          svgClone.setAttribute('width', width.toString());
+          svgClone.setAttribute('height', height.toString());
+
+          // Clean up any potential interactive overlays or hidden elements if necessary
+          // (Recharts usually handles this well, but being safe)
+          svgClone.style.backgroundColor = 'white'; // Force background
+
+          // Add a white background rect explicitly as some viewers verify against a dark bg
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('width', '100%');
+          rect.setAttribute('height', '100%');
+          rect.setAttribute('fill', 'white');
+          // Insert as the first child
+          if (svgClone.firstChild) {
+            svgClone.insertBefore(rect, svgClone.firstChild);
+          } else {
+            svgClone.appendChild(rect);
+          }
+
+          const serializer = new XMLSerializer();
+          let svgString = serializer.serializeToString(svgClone);
+
+          // Ensure XML declaration
+          if (!svgString.startsWith('<?xml')) {
+            svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
+          }
+
+          const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${filename}.svg`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        } else {
+          console.error(`SVG not found in container for chart: ${chartName}`);
+          alert('Could not generate SVG: Chart element not found.');
+        }
+      } else {
+        console.error(`Container not found for chart: ${chartName}`);
+      }
+    }
+  };
 
   const stats = {
     totalIncidents: incidents.length,
@@ -27,43 +117,13 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
+      {/* <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600 mt-1">Overview of incidents and tasks</p>
-      </div>
+      </div> */}
 
-      {/* High-Visibility Alerts Section */}
-      {state.alerts.length > 0 && (
-        <div className="space-y-4">
-          {state.alerts.map((alert) => (
-            <div
-              key={alert.id}
-              className={`flex items-start gap-4 p-5 rounded-2xl border-2 shadow-sm animate-pulse-slow ${alert.severity === 'High'
-                  ? 'bg-red-50 border-red-200 text-red-900'
-                  : 'bg-orange-50 border-orange-200 text-orange-900'
-                }`}
-            >
-              <div className={`p-2 rounded-xl h-fit ${alert.severity === 'High' ? 'bg-red-100' : 'bg-orange-100'
-                }`}>
-                <AlertTriangle className={`w-6 h-6 ${alert.severity === 'High' ? 'text-red-600' : 'text-orange-600'
-                  }`} />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="font-bold text-lg">{alert.title}</h3>
-                  <span className="text-xs font-medium opacity-70">
-                    {format(alert.timestamp, 'h:mm a')}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm leading-relaxed opacity-90">{alert.message}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 xxl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 gap-6">
+        <div className="space-y-6">
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 border-blue-100">
@@ -123,85 +183,60 @@ export const Dashboard: React.FC = () => {
             </Card>
           </div>
         </div>
-
-        
       </div>
-
-      {/* Persistent Emergency Instructions - CRITICAL */}
-        <Card className="bg-[#1e1b4b] border-indigo-900 text-white shadow-2xl overflow-hidden h-full flex flex-col">
-  
-  <CardHeader className="border-b border-indigo-800/50 bg-[#1e1b4b] px-6 py-4">
-    <div className="flex items-center gap-3">
-      <div className="p-2 bg-red-600 rounded-lg animate-pulse">
-        <Activity className="w-5 h-5 text-white" />
-      </div>
-      <h3 className="text-lg font-bold tracking-wide">Emergency Hub</h3>
-    </div>
-  </CardHeader>
-
-  <CardBody className="flex-1 px-6 py-6 space-y-8 bg-[#1e1b4b] text-white">
-    {state.emergencyInstructions.map((instruction) => (
-      <div key={instruction.id} className="space-y-4">
-        <h4 className="font-bold text-red-400 uppercase tracking-widest text-xs">
-          {instruction.title}
-        </h4>
-
-        <ul className="space-y-4">
-          {instruction.steps.map((step, idx) => (
-            <li
-              key={idx}
-              className="flex gap-4 text-sm leading-relaxed border-l-2 border-indigo-700 pl-5 py-1 hover:border-red-500 transition-colors"
-            >
-              <span className="text-indigo-400 font-bold min-w-[18px]">
-                {idx + 1}.
-              </span>
-              <span className="text-indigo-100">
-                {step}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    ))}
-  </CardBody>
-
-  <div className="px-6 pb-6 bg-[#1e1b4b]">
-    <div className="bg-red-950/30 border border-red-900/50 rounded-xl p-4 flex items-center gap-4">
-      <div className="bg-red-600 p-2 rounded-full shadow-lg shadow-red-900/50">
-        <Activity className="w-4 h-4 text-white" />
-      </div>
-      <div>
-        <p className="text-xs font-bold text-red-400 uppercase tracking-widest">
-          Emergency Helpline
-        </p>
-        <p className="text-xl font-black text-white mt-1">
-          9-1-1 / 555-0100
-        </p>
-      </div>
-    </div>
-  </div>
-
-</Card>
 
       {/* Analytics Section */}
       {state.currentUser.role === 'supervisor' && (
         <div className="space-y-6">
-          <div>
+          {/* <div>
             <h2 className="text-2xl font-bold text-gray-900">Analytics & Insights</h2>
             <p className="text-gray-600 mt-1">Data-driven insights for safety management</p>
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Incident Reports per Area */}
             <Card>
               <CardHeader>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-primary-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">Incidents by Area</h3>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-primary-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Incidents by Area</h3>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">Distribution of incidents across plant areas</p>
+                  </div>
+                  <div className="relative">
+                    <button
+                      onClick={() => setActiveExportMenu(activeExportMenu === 'Incidents by Area' ? null : 'Incidents by Area')}
+                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Export Options"
+                    >
+                      <Download className="w-5 h-5" />
+                    </button>
+
+                    {activeExportMenu === 'Incidents by Area' && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setActiveExportMenu(null)} />
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                          <button
+                            onClick={() => { handleExport('Incidents by Area', 'csv'); setActiveExportMenu(null); }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          >
+                            <Download className="w-4 h-4" /> Export as CSV
+                          </button>
+                          <button
+                            onClick={() => { handleExport('Incidents by Area', 'svg'); setActiveExportMenu(null); }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          >
+                            <Activity className="w-4 h-4" /> Export as SVG
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">Distribution of incidents across plant areas</p>
               </CardHeader>
-              <CardBody>
+              <CardBody data-chart-container="Incidents by Area">
                 {incidents.length > 0 ? (
                   <IncidentAreaChart incidents={incidents} />
                 ) : (
@@ -215,13 +250,46 @@ export const Dashboard: React.FC = () => {
             {/* Severity Distribution */}
             <Card>
               <CardHeader>
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-danger-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">Severity Distribution</h3>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5 text-danger-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Severity Distribution</h3>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">Severity breakdown by area</p>
+                  </div>
+                  <div className="relative">
+                    <button
+                      onClick={() => setActiveExportMenu(activeExportMenu === 'Severity Distribution' ? null : 'Severity Distribution')}
+                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Export Options"
+                    >
+                      <Download className="w-5 h-5" />
+                    </button>
+
+                    {activeExportMenu === 'Severity Distribution' && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setActiveExportMenu(null)} />
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                          <button
+                            onClick={() => { handleExport('Severity Distribution', 'csv'); setActiveExportMenu(null); }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          >
+                            <Download className="w-4 h-4" /> Export as CSV
+                          </button>
+                          <button
+                            onClick={() => { handleExport('Severity Distribution', 'svg'); setActiveExportMenu(null); }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          >
+                            <Activity className="w-4 h-4" /> Export as SVG
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">Severity breakdown by area</p>
               </CardHeader>
-              <CardBody>
+              <CardBody data-chart-container="Severity Distribution">
                 {incidents.length > 0 ? (
                   <SeverityDistributionChart incidents={incidents} />
                 ) : (
@@ -235,13 +303,46 @@ export const Dashboard: React.FC = () => {
             {/* Incident Trend Over Time */}
             <Card>
               <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-primary-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">Incident Trend</h3>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-primary-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Incident Trend</h3>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">Incident frequency over time</p>
+                  </div>
+                  <div className="relative">
+                    <button
+                      onClick={() => setActiveExportMenu(activeExportMenu === 'Incident Trend' ? null : 'Incident Trend')}
+                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Export Options"
+                    >
+                      <Download className="w-5 h-5" />
+                    </button>
+
+                    {activeExportMenu === 'Incident Trend' && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setActiveExportMenu(null)} />
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                          <button
+                            onClick={() => { handleExport('Incident Trend', 'csv'); setActiveExportMenu(null); }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          >
+                            <Download className="w-4 h-4" /> Export as CSV
+                          </button>
+                          <button
+                            onClick={() => { handleExport('Incident Trend', 'svg'); setActiveExportMenu(null); }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          >
+                            <Activity className="w-4 h-4" /> Export as SVG
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">Incident frequency over time</p>
               </CardHeader>
-              <CardBody>
+              <CardBody data-chart-container="Incident Trend">
                 {incidents.length > 0 ? (
                   <IncidentTrendChart incidents={incidents} />
                 ) : (
@@ -255,13 +356,46 @@ export const Dashboard: React.FC = () => {
             {/* Repeat Incidents */}
             <Card>
               <CardHeader>
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-warning-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">Repeat Incident Risk</h3>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-warning-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Repeat Incident Risk</h3>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">Areas with multiple incidents (high repeat risk)</p>
+                  </div>
+                  <div className="relative">
+                    <button
+                      onClick={() => setActiveExportMenu(activeExportMenu === 'Repeat Incident Risk' ? null : 'Repeat Incident Risk')}
+                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Export Options"
+                    >
+                      <Download className="w-5 h-5" />
+                    </button>
+
+                    {activeExportMenu === 'Repeat Incident Risk' && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setActiveExportMenu(null)} />
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                          <button
+                            onClick={() => { handleExport('Repeat Incident Risk', 'csv'); setActiveExportMenu(null); }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          >
+                            <Download className="w-4 h-4" /> Export as CSV
+                          </button>
+                          <button
+                            onClick={() => { handleExport('Repeat Incident Risk', 'svg'); setActiveExportMenu(null); }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          >
+                            <Activity className="w-4 h-4" /> Export as SVG
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">Areas with multiple incidents (high repeat risk)</p>
               </CardHeader>
-              <CardBody>
+              <CardBody data-chart-container="Repeat Incident Risk">
                 {incidents.length > 0 ? (
                   <RepeatIncidentsChart incidents={incidents} />
                 ) : (
