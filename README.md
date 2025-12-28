@@ -46,10 +46,12 @@ Default Admin: `admin@hazardeeye.com` / `AdminPassword123!`
 ```bash
 cd mobile
 npm install
-npm start
+npx expo run:android
 ```
 
-Use Expo Go or an Android Emulator to run the app.
+- **Note**: This app uses custom native code (ONNX Runtime). You **cannot** use Expo Go. You must use a Development Build or Emulator.
+- `npm install` will automatically fix Gradle permissions.
+- See `mobile/README.md` for detailed troubleshooting and cross-platform setup.
 
 ## Features
 
