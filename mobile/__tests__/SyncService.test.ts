@@ -7,6 +7,10 @@ jest.mock('../src/services/Database', () => ({
     markIncidentUploaded: jest.fn(),
 }));
 
+jest.mock('../src/services/api', () => ({
+    post: jest.fn(),
+}));
+
 /*
 jest.mock('expo-file-system', () => ({
   uploadAsync: jest.fn(),
@@ -14,8 +18,8 @@ jest.mock('expo-file-system', () => ({
 */
 
 const mockPending = [
-    { id: '1', media_uris: '[]', ml_metadata: '{}', sync_status: 'pending' },
-    { id: '2', media_uris: '[]', ml_metadata: '{}', sync_status: 'pending' },
+    { id: '1', media_uris: '[]', ml_metadata: '{}', sync_status: 'pending', created_at: '2023-01-01', severity: 1, note: '', advisory: '' },
+    { id: '2', media_uris: '[]', ml_metadata: '{}', sync_status: 'pending', created_at: '2023-01-02', severity: 2, note: '', advisory: '' },
 ];
 
 describe('SyncService', () => {

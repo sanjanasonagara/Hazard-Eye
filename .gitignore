@@ -1,0 +1,33 @@
+# Dependencies
+**/node_modules/
+.pnp
+.pnp.js
+
+# Env (Secrets)
+.env
+.env.local
+.env.*.local
+
+# Expo (Mobile)
+.expo/
+dist/
+web-build/
+
+# Mobile Build Artifacts
+**/android/.gradle
+**/android/app/build
+**/android/build
+**/android/app/.cxx
+**/ios/Pods
+**/ios/build
+
+# Backend (ASP.NET Core)
+**/bin/
+**/obj/
+*.user
+*.log
+logs/
+
+# System
+.DS_Store
+Thumbs.db

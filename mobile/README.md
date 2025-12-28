@@ -25,8 +25,10 @@ Offline-first mobile application for refinery workers to detect hazards using on
 ### Installation
 1. Install dependencies:
    ```bash
+
    npm install
    ```
+   *Note: A postinstall script automatically grants execution permissions to `android/gradlew`.*
 2. Generate Native Projects (Prebuild):
    ```bash
    npx expo prebuild --platform android
@@ -55,4 +57,10 @@ Offline-first mobile application for refinery workers to detect hazards using on
 
 ## ⚠️ Notes
 - The ONNX Model used is currently "Simulated" for the purpose of the demo. To use a real model, place the `.ort` file in assets and update `OnnxModule.kt`.
-- `SyncService` points to a placeholder URL (`http://192.168.1.100:5000/api`). Update this in `src/services/SyncService.ts`.
+- The ONNX Model used is currently "Simulated" for the purpose of the demo. To use a real model, place the `.ort` file in assets and update `OnnxModule.kt`.
+- API Base URL is dynamically determined in `src/services/api.ts` to support both Emulators (10.0.2.2) and Physical Devices (Host IP via Expo constants).
+
+## 🔧 Troubleshooting
+- **Gradle Permissions**: If `npm run android` fails with `EACCES`, verify `chmod +x android/gradlew` was executed.
+- **ADB Broken Pipe**: If installation fails, restart ADB: `adb kill-server && adb start-server`.
+- **Port Mapping**: Ensure your backend service is running on Port 5200.

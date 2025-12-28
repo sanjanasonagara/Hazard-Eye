@@ -2,12 +2,26 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
-// Use 10.0.2.2 for Android Emulator, localhost for iOS/Web
-const BASE_URL = Platform.select({
-    android: 'http://10.0.2.2:5200/api', // Verify port from launchSettings.json
-    ios: 'http://localhost:5200/api',
-    default: 'http://localhost:5200/api',
-});
+import Constants from 'expo-constants';
+
+const getBaseUrl = () => {
+    // If we have a hostUri (Expo Go / Development), use that IP
+    const hostUri = Constants.expoConfig?.hostUri;
+    if (hostUri) {
+        const ip = hostUri.split(':')[0];
+        // Ensure this port matches your backend server
+        return `http://${ip}:5200/api`;
+    }
+
+    // Fallback for scenarios where hostUri isn't available (e.g. standalone builds vs localhost)
+    return Platform.select({
+        android: 'http://10.0.2.2:5200/api',
+        ios: 'http://localhost:5200/api',
+        default: 'http://localhost:5200/api',
+    });
+};
+
+const BASE_URL = getBaseUrl();
 
 const api = axios.create({
     baseURL: BASE_URL,
