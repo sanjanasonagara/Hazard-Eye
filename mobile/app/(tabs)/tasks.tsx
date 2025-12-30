@@ -2,11 +2,13 @@ import { StyleSheet, Text, View, FlatList, TouchableOpacity, ScrollView, Modal, 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useCallback, useMemo } from 'react';
-import { useFocusEffect } from 'expo-router';
-import { getTasks, Task, updateTaskStatus, addTaskComment, reportTaskDelay } from '../../src/services/DatabaseMock';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { getTasks, Task, updateTaskStatus, addTaskComment, reportTaskDelay, TaskComment } from '../../src/services/Database';
 
 export default function TasksScreen() {
+    const router = useRouter();
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [showCompleted, setShowCompleted] = useState(false);
 
     // Modal State
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -21,19 +23,32 @@ export default function TasksScreen() {
         }, [])
     );
 
-    const loadTasks = () => {
-        const data = getTasks();
+    const loadTasks = async () => {
+        const data = await getTasks();
         setTasks(data);
     };
 
-    const handleComplete = (id: string) => {
-        updateTaskStatus(id, 'completed');
-        loadTasks();
+    const handleComplete = async (id: string) => {
+        Alert.alert(
+            "Complete Task",
+            "Are you sure you want to mark this task as done?",
+            [
+                { text: "Cancel", style: "cancel" },
+                { 
+                    text: "Done", 
+                    onPress: async () => {
+                        await updateTaskStatus(id, 'completed');
+                        await loadTasks();
+                        Alert.alert("Success", "Task marked as completed.");
+                    } 
+                }
+            ]
+        );
     };
 
-    const handleReOpen = (id: string) => {
-        updateTaskStatus(id, 'pending');
-        loadTasks();
+    const handleReOpen = async (id: string) => {
+        await updateTaskStatus(id, 'pending');
+        await loadTasks();
     };
 
     const openModal = (id: string, type: 'comment' | 'delay') => {
@@ -43,23 +58,23 @@ export default function TasksScreen() {
         setIsModalVisible(true);
     };
 
-    const saveInput = () => {
+    const saveInput = async () => {
         if (!inputText.trim() || !currentTaskId) {
             setIsModalVisible(false);
             return;
         }
 
         if (modalType === 'comment') {
-            addTaskComment(currentTaskId, inputText);
+            await addTaskComment(currentTaskId, inputText);
             Alert.alert("Success", "Comment added.");
         } else {
-            reportTaskDelay(currentTaskId, inputText);
+            await reportTaskDelay(currentTaskId, inputText);
             Alert.alert("Reported", "Delay reason logged.");
         }
 
         setIsModalVisible(false);
         setInputText('');
-        loadTasks();
+        await loadTasks();
     };
 
     const stats = useMemo(() => {
@@ -71,7 +86,7 @@ export default function TasksScreen() {
     }, [tasks]);
 
     const getPriorityColor = (priority: string) => {
-        switch (priority) {
+        switch (priority.toLowerCase()) {
             case 'high': return { bg: '#FED7D7', text: '#C53030' };
             case 'medium': return { bg: '#FEEBC8', text: '#C05621' };
             case 'low': return { bg: '#C6F6D5', text: '#2F855A' };
@@ -80,21 +95,21 @@ export default function TasksScreen() {
     };
 
     const getStatusStyle = (status: string) => {
-        switch (status) {
+        switch (status.toLowerCase()) {
             case 'pending': return { bg: '#FFFAF0', text: '#DD6B20', label: 'PENDING' };
             case 'in_progress': return { bg: '#EBF8FF', text: '#3182CE', label: 'IN PROGRESS' };
             case 'completed': return { bg: '#C6F6D5', text: '#2F855A', label: 'COMPLETED' };
-            default: return { bg: '#EDF2F7', text: '#4A5568', label: 'UNK' };
+            default: return { bg: '#EDF2F7', text: '#4A5568', label: status.toUpperCase() };
         }
     };
 
     const renderItem = ({ item }: { item: Task }) => {
         const priorityStyle = getPriorityColor(item.priority);
         const statusStyle = getStatusStyle(item.status);
-        const comments = item.comments ? JSON.parse(item.comments) : [];
+        const comments = item.comments ? JSON.parse(item.comments) as (string | TaskComment)[] : [];
 
         return (
-            <View style={styles.card}>
+            <TouchableOpacity style={styles.card} onPress={() => router.push(`/(tabs)/tasks/${item.id}`)}>
                 <View style={styles.cardHeader}>
                     <View style={styles.badges}>
                         <View style={[styles.badge, { backgroundColor: priorityStyle.bg }]}>
@@ -118,7 +133,7 @@ export default function TasksScreen() {
 
                 <View style={styles.metaRow}>
                     <Ionicons name="calendar-outline" size={14} color="#718096" />
-                    <Text style={styles.metaText}>Due: {item.due_date}</Text>
+                    <Text style={styles.metaText}>Due: {new Date(item.due_date).toLocaleDateString()}</Text>
                 </View>
 
                 {item.delay_reason ? (
@@ -133,12 +148,16 @@ export default function TasksScreen() {
                 {comments.length > 0 && (
                     <View style={styles.commentsSection}>
                         <Text style={styles.commentHeader}>Recent Comments ({comments.length}):</Text>
-                        {comments.slice(-2).map((c: string, idx: number) => (
-                            <View key={idx} style={styles.commentRow}>
-                                <Ionicons name="chatbubble-ellipses-outline" size={12} color="#718096" />
-                                <Text style={styles.commentText} numberOfLines={2}>{c}</Text>
-                            </View>
-                        ))}
+                        {comments.slice(-2).map((c, idx) => {
+                            const isNewFormat = typeof c === 'object' && c !== null && 'text' in c;
+                            const text = isNewFormat ? c.text : c as string;
+                            return (
+                                <View key={idx} style={styles.commentRow}>
+                                    <Ionicons name="chatbubble-ellipses-outline" size={12} color="#718096" />
+                                    <Text style={styles.commentText} numberOfLines={2}>{text}</Text>
+                                </View>
+                            );
+                        })}
                     </View>
                 )}
 
@@ -153,20 +172,17 @@ export default function TasksScreen() {
                         </TouchableOpacity>
                     )}
 
-                    <View style={{ flex: 0.1 }} />
-
-                    {item.status === 'completed' ? (
-                        <TouchableOpacity style={styles.reopenBtn} onPress={() => handleReOpen(item.id)}>
-                            <Text style={styles.actionBtnText}>RE-OPEN</Text>
-                        </TouchableOpacity>
-                    ) : (
-                        <TouchableOpacity style={styles.completeBtn} onPress={() => handleComplete(item.id)}>
-                            <Ionicons name="checkmark-circle-outline" size={18} color="#fff" />
-                            <Text style={styles.actionBtnText}>DONE</Text>
-                        </TouchableOpacity>
+                    {item.status !== 'completed' && (
+                        <>
+                            <View style={{ flex: 0.1 }} />
+                            <TouchableOpacity style={styles.completeBtn} onPress={() => handleComplete(item.id)}>
+                                <Ionicons name="checkmark-circle-outline" size={18} color="#fff" />
+                                <Text style={styles.actionBtnText}>DONE</Text>
+                            </TouchableOpacity>
+                        </>
                     )}
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     };
 
@@ -174,8 +190,25 @@ export default function TasksScreen() {
         <View style={styles.mainContainer}>
             <View style={styles.header}>
                 <SafeAreaView edges={['top', 'left', 'right']}>
-                    <Text style={styles.headerTitle}>Assigned Tasks</Text>
-                    <Text style={styles.headerSubtitle}>{tasks.filter(t => t.status !== 'completed').length} tasks pending</Text>
+                    <View style={styles.headerTopRow}>
+                        <View>
+                            <Text style={styles.headerTitle}>Assigned Tasks</Text>
+                            <Text style={styles.headerSubtitle}>{tasks.filter(t => t.status !== 'completed').length} tasks pending</Text>
+                        </View>
+                        <TouchableOpacity 
+                            style={[styles.toggleBtn, showCompleted && styles.toggleBtnActive]} 
+                            onPress={() => setShowCompleted(!showCompleted)}
+                        >
+                            <Ionicons 
+                                name={showCompleted ? "eye-outline" : "eye-off-outline"} 
+                                size={18} 
+                                color={showCompleted ? "#fff" : "#BFDBFE"} 
+                            />
+                            <Text style={[styles.toggleBtnText, showCompleted && styles.toggleBtnTextActive]}>
+                                {showCompleted ? "Hide Completed" : "Show Completed"}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </SafeAreaView>
             </View>
 
@@ -195,7 +228,7 @@ export default function TasksScreen() {
             </View>
 
             <FlatList
-                data={tasks}
+                data={showCompleted ? tasks : tasks.filter(t => t.status !== 'completed')}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.listContent}
@@ -257,11 +290,40 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 4,
     },
+    headerTopRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    toggleBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 20,
+        gap: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    toggleBtnActive: {
+        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+        borderColor: '#fff',
+    },
+    toggleBtnText: {
+        color: '#BFDBFE',
+        fontSize: 12,
+        fontWeight: 'bold',
+    },
+    toggleBtnTextActive: {
+        color: '#fff',
+    },
     statsContainer: {
         flexDirection: 'row',
         padding: 16,
         gap: 12,
-        marginTop: -20, // Overlap header
+        marginTop: -20,
     },
     statCard: {
         flex: 1,
@@ -320,7 +382,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#718096',
         marginRight: 8,
-        fontFamily: 'SpaceMono-Regular',
     },
     cardTitle: {
         fontSize: 18,
@@ -395,7 +456,7 @@ const styles = StyleSheet.create({
     },
     completeBtn: {
         flex: 1.2,
-        backgroundColor: '#48BB78', // Green
+        backgroundColor: '#48BB78',
         paddingVertical: 12,
         paddingHorizontal: 8,
         borderRadius: 8,
@@ -406,7 +467,7 @@ const styles = StyleSheet.create({
     },
     reopenBtn: {
         flex: 1.2,
-        backgroundColor: '#2563EB', // Blue
+        backgroundColor: '#2563EB',
         paddingVertical: 12,
         paddingHorizontal: 8,
         borderRadius: 8,

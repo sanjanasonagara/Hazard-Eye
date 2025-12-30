@@ -4,17 +4,36 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useEffect } from 'react';
+import { useDeviceStore } from '../../src/store/useDeviceStore';
 
 export default function ProfileScreen() {
     const router = useRouter();
+    const { device, refreshDeviceData } = useDeviceStore();
+    const [userName, setUserName] = useState('Safety Worker');
+    const [userRole, setUserRole] = useState('Inspector');
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-    const [autoUploadEnabled, setAutoUploadEnabled] = useState(false);
+    const [autoUploadEnabled, setAutoUploadEnabled] = useState(true);
 
+    useFocusEffect(
+        useCallback(() => {
+            loadUserData();
+            refreshDeviceData();
+        }, [])
+    );
+
+    const loadUserData = async () => {
+        const name = await SecureStore.getItemAsync('user');
+        const role = await SecureStore.getItemAsync('userRole');
+        if (name) setUserName(name);
+        if (role) setUserRole(role.charAt(0).toUpperCase() + role.slice(1));
+    };
     const handleLogout = async () => {
-        // We can clear session or just navigate to login to allow switching
-        // For security, let's clear but user can log back in
         try {
-            // Optional: await SecureStore.deleteItemAsync('token');
+            await SecureStore.deleteItemAsync('token');
+            await SecureStore.deleteItemAsync('user');
+            await SecureStore.deleteItemAsync('userRole');
             router.replace('/login');
         } catch (error) {
             router.replace('/login');
@@ -46,8 +65,8 @@ export default function ProfileScreen() {
                         <View style={styles.avatarContainer}>
                             <Ionicons name="person-outline" size={40} color="#2563EB" />
                         </View>
-                        <Text style={styles.userName}>UserName</Text>
-                        <Text style={styles.userRole}>Field Inspector</Text>
+                        <Text style={styles.userName}>{userName}</Text>
+                        <Text style={styles.userRole}>{userRole}</Text>
                         <View style={styles.certificationBadge}>
                             <Ionicons name="shield-checkmark-outline" size={14} color="#D69E2E" />
                             <Text style={styles.certificationText}>Certified Safety Worker</Text>
@@ -62,20 +81,32 @@ export default function ProfileScreen() {
                     <Text style={styles.sectionTitle}>Device Information</Text>
 
                     <View style={styles.infoRow}>
-                        <Text style={styles.infoLabel}>Device ID</Text>
-                        <Text style={styles.infoValue}>DEV-5V9C8406N</Text>
+                        <Text style={styles.infoLabel}>Device Station</Text>
+                        <Text style={styles.infoValue}>{device?.station || '...'}</Text>
+                    </View>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Device Model</Text>
+                        <Text style={styles.infoValue}>{device?.model || '...'}</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>ML Model Version</Text>
-                        <Text style={styles.infoValue}>x.x.x</Text>
+                        <Text style={styles.infoValue}>{device?.model_version || '...'}</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Last Model Update</Text>
-                        <Text style={styles.infoValue}>x.x.x</Text>
+                        <Text style={styles.infoValue}>{device?.model_updated || '...'}</Text>
                     </View>
                     <View style={styles.infoRow}>
-                        <Text style={styles.infoLabel}>App Version</Text>
-                        <Text style={styles.infoValue}>x.x.x</Text>
+                        <Text style={styles.infoLabel}>Last Data Sync</Text>
+                        <Text style={styles.infoValue}>
+                            {device?.last_sync && !isNaN(new Date(device.last_sync).getTime())
+                                ? new Date(device.last_sync).toLocaleTimeString()
+                                : 'Never'}
+                        </Text>
+                    </View>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Storage Used</Text>
+                        <Text style={styles.infoValue}>{device?.storage_used || '...'}</Text>
                     </View>
                 </View>
 

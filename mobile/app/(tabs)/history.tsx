@@ -3,10 +3,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useCallback, useMemo } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { getAllIncidents, Incident, getPendingIncidents, deleteIncident } from '../../src/services/DatabaseMock';
-import { syncIncidents } from '../../src/services/SyncService';
+import { getAllIncidents, Incident, deleteIncident } from '../../src/services/Database';
+import { syncData } from '../../src/services/SyncService';
 
 type FilterType = 'All' | 'High' | 'Medium' | 'Low' | 'Pending';
+
+import * as SecureStore from 'expo-secure-store';
 
 export default function HistoryScreen() {
     const router = useRouter();
@@ -15,6 +17,7 @@ export default function HistoryScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState<FilterType>('All');
     const [pendingCount, setPendingCount] = useState(0);
+    const [userRole, setUserRole] = useState<string | null>(null);
 
     useFocusEffect(
         useCallback(() => {
@@ -22,22 +25,26 @@ export default function HistoryScreen() {
         }, [])
     );
 
-    const loadData = () => {
-        const allData = getAllIncidents();
+    const loadData = async () => {
+        const allData = await getAllIncidents();
         setIncidents(allData);
         setPendingCount(allData.filter(i => i.sync_status === 'pending').length);
+        
+        const role = await SecureStore.getItemAsync('userRole');
+        if (role) setUserRole(role);
     };
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        loadData();
+        await loadData();
         setRefreshing(false);
     }, []);
 
     const handleSyncAll = async () => {
         setRefreshing(true);
-        await syncIncidents();
-        loadData();
+        await syncData(async () => {
+            await loadData();
+        });
         setRefreshing(false);
     };
 
@@ -50,9 +57,9 @@ export default function HistoryScreen() {
                 {
                     text: "Delete",
                     style: "destructive",
-                    onPress: () => {
-                        deleteIncident(id);
-                        loadData();
+                    onPress: async () => {
+                        await deleteIncident(id);
+                        await loadData();
                     }
                 }
             ]
@@ -69,6 +76,11 @@ export default function HistoryScreen() {
 
             if (!matchesSearch) return false;
 
+            // Worker Restriction: Only show pending items
+            if (userRole && userRole.toLowerCase() === 'worker' && item.sync_status !== 'pending') {
+                return false;
+            }
+
             // Category Filter
             if (activeFilter === 'All') return true;
             if (activeFilter === 'Pending') return item.sync_status === 'pending';
@@ -80,7 +92,7 @@ export default function HistoryScreen() {
 
             return true;
         });
-    }, [incidents, searchQuery, activeFilter]);
+    }, [incidents, searchQuery, activeFilter, userRole]);
 
     const getSeverityBadge = (severity: number) => {
         if (severity === 3) return { label: 'HIGH', color: '#FEB2B2', text: '#C53030' }; // Red
@@ -100,13 +112,6 @@ export default function HistoryScreen() {
         return (
             <View style={styles.card}>
                 <View style={styles.cardHeader}>
-                    {/* <View style={styles.iconBox}>
-                        {imageUrl ? (
-                            <Image source={{ uri: imageUrl }} style={styles.thumbnail} resizeMode="cover" />
-                        ) : (
-                            <Ionicons name="alert-circle-outline" size={24} color="#4A5568" />
-                        )}
-                    </View> */}
                     <View style={styles.iconBox}>
                         <Ionicons name="alert-circle-outline" size={24} color="#4A5568" />
                     </View>
@@ -136,7 +141,6 @@ export default function HistoryScreen() {
                         </View>
                     </View>
 
-                    {/* Bullet points for details (Mocked for now based on description) */}
                     {item.advisory ? (
                         <View style={styles.bulletContainer}>
                             <View style={styles.bulletRow}>
@@ -339,11 +343,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 12,
-        overflow: 'hidden', // Ensure image clips to border radius
-    },
-    thumbnail: {
-        width: '100%',
-        height: '100%',
+        overflow: 'hidden',
     },
     headerTextContainer: {
         flex: 1,
@@ -384,10 +384,9 @@ const styles = StyleSheet.create({
         fontSize: 11,
         color: '#A0AEC0',
         marginTop: 2,
-        fontFamily: 'SpaceMono-Regular',
     },
     cardBody: {
-        paddingLeft: 60, // Align with text start
+        paddingLeft: 60,
     },
     metaRow: {
         flexDirection: 'row',
@@ -498,7 +497,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         padding: 16,
-        backgroundColor: '#fff', // Or transparent if button floats
+        backgroundColor: '#fff',
     },
     footerBtn: {
         backgroundColor: '#2563EB',

@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useCallback, useMemo } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { getAllIncidents, Incident, updateIncidentStatus } from '../../src/services/DatabaseMock';
+import { getAllIncidents, Incident, updateIncidentStatus } from '../../src/services/Database';
 import { CumulativeAISummary } from '../../src/components/CumulativeAISummary';
 import { IncidentFilters, FilterState, Severity, Department, IncidentStatus } from '../../src/components/IncidentFilters';
 import { isWithinInterval, parseISO, startOfDay, endOfDay, subDays, startOfMonth, startOfYear, subMonths, subYears } from 'date-fns';
@@ -27,14 +27,14 @@ export default function SupervisorIncidentsScreen() {
         }, [])
     );
 
-    const loadData = () => {
-        const allData = getAllIncidents();
+    const loadData = async () => {
+        const allData = await getAllIncidents();
         setIncidents(allData);
     };
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        loadData();
+        await loadData();
         setRefreshing(false);
     }, []);
 
@@ -47,7 +47,6 @@ export default function SupervisorIncidentsScreen() {
     // Filter Logic
     const filteredIncidents = useMemo(() => {
         return incidents.filter(incident => {
-            // 1. Search Query
             if (searchQuery.trim()) {
                 const q = searchQuery.toLowerCase();
                 const severityLabel = getSeverityLabel(incident.severity);
@@ -66,31 +65,23 @@ export default function SupervisorIncidentsScreen() {
                 if (!matchesSearch) return false;
             }
 
-            // 2. Filters
-            // Severity
             if (filters.severities.length > 0) {
                 const label = getSeverityLabel(incident.severity);
                 if (!filters.severities.includes(label)) return false;
             }
 
-            // Department
             if (filters.departments.length > 0) {
                 if (!incident.department || !filters.departments.includes(incident.department as Department)) return false;
             }
 
-            // Status
             if (filters.statuses.length > 0) {
-                // Map db status to filter status if needed, assuming they match case-insensitively or exactly
-                // DB: 'open', 'verified', 'closed' -> Filter: 'open', 'verified', 'closed'
                 if (!incident.status || !filters.statuses.includes(incident.status as IncidentStatus)) return false;
             }
 
-            // Areas
             if (filters.areas.length > 0) {
                 if (!incident.area || !filters.areas.includes(incident.area)) return false;
             }
 
-            // Time Range
             if (filters.timeRange !== 'All') {
                 const date = parseISO(incident.created_at);
                 const now = new Date();
@@ -103,7 +94,7 @@ export default function SupervisorIncidentsScreen() {
                         if (date < subDays(now, 7)) return false;
                         break;
                     case 'Monthly':
-                        if (date < startOfMonth(subMonths(now, 1))) return false; // Approx "last month" logic or current month? Web says startOfMonth(subMonths(now, 1))
+                        if (date < startOfMonth(subMonths(now, 1))) return false;
                         break;
                     case 'Custom':
                         if (filters.customStartDate && date < filters.customStartDate) return false;
@@ -121,9 +112,9 @@ export default function SupervisorIncidentsScreen() {
             { text: "Cancel", style: "cancel" },
             {
                 text: "Verify",
-                onPress: () => {
-                    updateIncidentStatus(id, 'verified');
-                    loadData();
+                onPress: async () => {
+                    await updateIncidentStatus(id, 'verified');
+                    await loadData();
                 }
             }
         ]);
@@ -135,19 +126,19 @@ export default function SupervisorIncidentsScreen() {
             {
                 text: "Close Event",
                 style: 'destructive',
-                onPress: () => {
-                    updateIncidentStatus(id, 'closed');
-                    loadData();
+                onPress: async () => {
+                    await updateIncidentStatus(id, 'closed');
+                    await loadData();
                 }
             }
         ]);
     };
 
     const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'verified': return { bg: '#C6F6D5', text: '#2F855A' }; // Green
-            case 'closed': return { bg: '#E2E8F0', text: '#4A5568' };   // Gray
-            default: return { bg: '#FEFCBF', text: '#D69E2E' };         // Yellow (Open)
+        switch (status.toLowerCase()) {
+            case 'verified': return { bg: '#C6F6D5', text: '#2F855A' };
+            case 'closed': return { bg: '#E2E8F0', text: '#4A5568' };
+            default: return { bg: '#FEFCBF', text: '#D69E2E' };
         }
     };
 
@@ -202,12 +193,11 @@ export default function SupervisorIncidentsScreen() {
 
         let imageUrl = null;
         try {
-            const media = JSON.parse(item.media_uris);
+            const media = JSON.parse(item.media_uris || '[]');
             if (Array.isArray(media) && media.length > 0) {
                 imageUrl = media[0];
             }
         } catch (e) {
-            // Ignore format error
         }
 
         return (
@@ -245,7 +235,7 @@ export default function SupervisorIncidentsScreen() {
 
                         <View style={styles.metaRow}>
                             <View style={[styles.severityBadge, severityLabel === 'High' ? styles.sevHigh : severityLabel === 'Medium' ? styles.sevMed : styles.sevLow]}>
-                                <Text style={styles.severityText}>{severityLabel}</Text>
+                                <Text style={[styles.severityText, severityLabel === 'High' ? { color: '#C53030' } : severityLabel === 'Medium' ? { color: '#C05621' } : { color: '#2F855A' }]}>{severityLabel}</Text>
                             </View>
                             <Text style={[styles.idText, { marginLeft: 'auto' }]}>ID: {item.id.substring(0, 8)}...</Text>
                         </View>
@@ -493,7 +483,6 @@ const styles = StyleSheet.create({
     idText: {
         fontSize: 10,
         color: '#A0AEC0',
-        fontFamily: 'SpaceMono-Regular', // Ensure font is loaded or fallback
     },
     severityBadge: {
         paddingHorizontal: 6,
@@ -508,7 +497,6 @@ const styles = StyleSheet.create({
     sevHigh: {
         borderColor: '#FEB2B2',
         backgroundColor: '#FFF5F5',
-        color: '#C53030' // Text color hack handled in View style? No, need Text style.
     },
     sevMed: {
         borderColor: '#FBD38D',

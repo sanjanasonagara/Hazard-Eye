@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Modal, TouchableOpacity, Alert, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, Modal, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
-import { getIncidentById, Incident, updateIncidentStatus, getTasks, Task } from '../../../src/services/DatabaseMock';
+import { getIncidentById, Incident, updateIncidentStatus, getTasks, Task } from '../../../src/services/Database';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, CardHeader, CardBody } from '../../../src/components/UI/Card';
 import { Badge } from '../../../src/components/UI/Badge';
@@ -20,16 +21,20 @@ export default function IncidentDetailScreen() {
     useFocusEffect(
         useCallback(() => {
             if (typeof id === 'string') {
-                const data = getIncidentById(id);
-                setIncident(data);
-
-                // Fetch tasks and filter for this incident
-                const allTasks = getTasks();
-                const related = allTasks.filter(t => t.incident_id === id);
-                setRelatedTasks(related);
+                loadData(id);
             }
         }, [id])
     );
+
+    const loadData = async (incidentId: string) => {
+        const data = await getIncidentById(incidentId);
+        setIncident(data);
+
+        // Fetch tasks and filter for this incident
+        const allTasks = await getTasks();
+        const related = allTasks.filter(t => t.incident_id === incidentId);
+        setRelatedTasks(related);
+    };
 
     const handleCreateTask = () => {
         if (incident) {
@@ -55,8 +60,8 @@ export default function IncidentDetailScreen() {
                 {
                     text: "Close",
                     style: "destructive",
-                    onPress: () => {
-                        updateIncidentStatus(incident.id, 'closed');
+                    onPress: async () => {
+                        await updateIncidentStatus(incident.id, 'closed');
                         setIncident(prev => prev ? { ...prev, status: 'closed' } : null);
                         Alert.alert("Success", "Incident closed.");
                     }
@@ -74,8 +79,8 @@ export default function IncidentDetailScreen() {
                 { text: "Cancel", style: "cancel" },
                 {
                     text: "Verify",
-                    onPress: () => {
-                        updateIncidentStatus(incident.id, 'verified');
+                    onPress: async () => {
+                        await updateIncidentStatus(incident.id, 'verified');
                         setIncident(prev => prev ? { ...prev, status: 'verified' } : null);
                     }
                 }
@@ -87,14 +92,9 @@ export default function IncidentDetailScreen() {
         if (!incident?.ml_metadata) return null;
         try {
             const meta = JSON.parse(incident.ml_metadata);
-            // Check if it matches our AIRecommendation shape directly or if we need to adapt
-            // Assuming for now it might be stored under a 'recommendation' key or flat.
-            // Let's assume the DB might store it somewhat loosely, but we'll try to extract.
-            // If the web already expects it, we can look for those keys.
             if (meta.whatToDo && meta.whyItMatters) {
                 return meta as AIRecommendation;
             }
-            // Fallback: Construct it if simple ML detection only
             if (meta.detections) {
                 return {
                     whatToDo: "Inspect the area immediately.",
@@ -111,11 +111,11 @@ export default function IncidentDetailScreen() {
 
     if (!incident) {
         return (
-            <SafeAreaView style={styles.container}>
-                <View style={styles.loadingContainer}>
+            <View style={[styles.container, styles.loadingContainer]}>
+                <SafeAreaView>
                     <Text>Loading...</Text>
-                </View>
-            </SafeAreaView>
+                </SafeAreaView>
+            </View>
         );
     }
 
@@ -128,16 +128,18 @@ export default function IncidentDetailScreen() {
     const isClosed = incident.status === 'closed';
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                    <Ionicons name="arrow-back" size={24} color="#1A202C" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Incident Details</Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                    {/* Placeholder for Download Button logic if feasible, skipping for now as per instructions to stick to UI */}
-                </View>
+                <SafeAreaView edges={['top', 'left', 'right']} style={styles.headerSafe}>
+                    <View style={styles.headerContentInner}>
+                        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+                            <Ionicons name="arrow-back" size={24} color="#1A202C" />
+                        </TouchableOpacity>
+                        <Text style={styles.headerTitle}>Incident Details</Text>
+                        <View style={{ width: 24 }} />
+                    </View>
+                </SafeAreaView>
             </View>
 
             {/* Content */}
@@ -201,12 +203,12 @@ export default function IncidentDetailScreen() {
                                         <View style={styles.grid}>
                                             <View style={styles.gridItem}>
                                                 <Text style={styles.label}>STATUS</Text>
-                                                <Badge variant={incident.status}>{incident.status}</Badge>
+                                                <Badge variant={incident.status as any}>{incident.status}</Badge>
                                             </View>
                                             <View style={styles.gridItem}>
                                                 <Text style={styles.label}>SEVERITY</Text>
-                                                <Badge variant={incident.severity >= 0.7 ? 'High' : incident.severity >= 0.4 ? 'Medium' : 'Low'}>
-                                                    {incident.severity >= 0.7 ? 'High' : incident.severity >= 0.4 ? 'Medium' : 'Low'} ({incident.severity.toFixed(2)})
+                                                <Badge variant={incident.severity >= 3 ? 'High' : incident.severity >= 2 ? 'Medium' : 'Low' as any}>
+                                                    {incident.severity >= 3 ? 'High' : incident.severity >= 2 ? 'Medium' : 'Low'}
                                                 </Badge>
                                             </View>
                                             <View style={styles.gridItem}>
@@ -223,7 +225,11 @@ export default function IncidentDetailScreen() {
                                                 <Text style={styles.label}>REPORTED AT</Text>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                                                     <Ionicons name="calendar-outline" size={14} color="#718096" />
-                                                    <Text style={styles.dateValue}>{format(new Date(incident.created_at), 'MMM d, yyyy h:mm a')}</Text>
+                                                    <Text style={styles.dateValue}>
+                                                        {incident.created_at && !isNaN(new Date(incident.created_at).getTime())
+                                                            ? format(new Date(incident.created_at), 'MMM d, yyyy h:mm a')
+                                                            : 'Unknown Date'}
+                                                    </Text>
                                                 </View>
                                             </View>
                                         </View>
@@ -265,7 +271,6 @@ export default function IncidentDetailScreen() {
                                 </CardBody>
                             </Card>
                         )}
-                        {/* Summary of advisory if not redundant */}
                         {incident.note && (
                             <Card>
                                 <CardHeader><Text style={{ fontWeight: 'bold' }}>Inspector Notes</Text></CardHeader>
@@ -297,8 +302,8 @@ export default function IncidentDetailScreen() {
                                                 <Text style={{ fontWeight: '600', fontSize: 16, marginBottom: 4 }}>{task.title}</Text>
                                                 <Text style={{ color: '#718096', fontSize: 13, marginBottom: 8 }}>{task.description}</Text>
                                                 <View style={{ flexDirection: 'row', gap: 8 }}>
-                                                    <Badge variant={task.status}>{task.status}</Badge>
-                                                    <Badge variant={task.priority}>{task.priority}</Badge>
+                                                    <Badge variant={task.status as any}>{task.status}</Badge>
+                                                    <Badge variant={task.priority.charAt(0).toUpperCase() + task.priority.slice(1) as any}>{task.priority}</Badge>
                                                 </View>
                                                 <Text style={{ fontSize: 12, color: '#A0AEC0', marginTop: 8 }}>
                                                     Assigned to: {task.assignee}
@@ -316,8 +321,7 @@ export default function IncidentDetailScreen() {
                 )}
             </ScrollView>
 
-            {/* Image Modal */}
-            <Modal visible={showImageModal} transparent={true} animationType="fade">
+            <Modal visible={showImageModal} transparent={true} animationType="fade" onRequestClose={() => setShowImageModal(false)}>
                 <View style={styles.modalOverlay}>
                     <TouchableOpacity style={styles.modalClose} onPress={() => setShowImageModal(false)}>
                         <Ionicons name="close" size={32} color="#fff" />
@@ -325,7 +329,7 @@ export default function IncidentDetailScreen() {
                     <Image source={{ uri: imageUrl }} style={styles.fullImage} resizeMode="contain" />
                 </View>
             </Modal>
-        </SafeAreaView>
+        </View>
     );
 }
 
@@ -333,17 +337,22 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F7FAFC' },
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 16,
-        paddingTop: 10,
         backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderBottomColor: '#E2E8F0',
     },
-    backBtn: { padding: 4 },
     headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1A202C' },
+    headerSafe: {
+        width: '100%',
+    },
+    headerContentInner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingBottom: 12,
+    },
+    backBtn: { padding: 4 },
     idHeader: {
         padding: 16,
         paddingBottom: 0,
@@ -354,12 +363,9 @@ const styles = StyleSheet.create({
     idText: {
         fontSize: 14,
         color: '#718096',
-        fontFamily: 'SpaceMono-Regular',
     },
     actionButtons: { flexDirection: 'row', gap: 8 },
     content: { paddingBottom: 40 },
-
-    // Tabs
     tabsContainer: {
         flexDirection: 'row',
         paddingHorizontal: 16,
@@ -389,11 +395,7 @@ const styles = StyleSheet.create({
         padding: 16,
         gap: 16,
     },
-
-    // Overview styles
     overviewContainer: {
-        // Imitating the flex-row from web on tablet, but col on mobile usually. 
-        // We'll keep it col for mobile optimization.
         flexDirection: 'column',
     },
     imageSection: {
@@ -431,7 +433,7 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     gridItem: {
-        width: '45%', // roughly 2 cols
+        width: '45%',
         gap: 4,
     },
     label: {
@@ -453,7 +455,6 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: '#4A5568',
     },
-
     actionRow: {
         flexDirection: 'row',
         gap: 12,
@@ -469,8 +470,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         gap: 8,
     },
-
-    // Modal
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.9)',

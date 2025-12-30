@@ -1,47 +1,102 @@
-import { getPendingIncidents, markIncidentUploaded } from './Database';
-import api from './api'; // Real API client
-import { IncidentDto } from '../types';
+import { getPendingIncidents, markIncidentUploaded, getPendingTasks, markTaskUploaded, updateIncidentServerId, updateTaskServerId } from './Database';
+import api from './api';
+import { Alert } from 'react-native';
 
-export const syncIncidents = async () => {
-    const pending = getPendingIncidents();
+let isSyncing = false;
 
-    if (pending.length === 0) {
-        console.log("No pending incidents to sync.");
-        return;
-    }
+export const syncData = async (onSyncComplete?: () => void) => {
+    if (isSyncing) return;
+    isSyncing = true;
 
-    console.log(`Syncing ${pending.length} incidents...`);
+    try {
+        const pendingIncidents = await getPendingIncidents();
+        const pendingTasks = await getPendingTasks();
 
-    for (const incident of pending) {
-        try {
-            // 1. Upload Media (Placeholder)
-            // In a real app, upload files first and get URLs
-
-            // 2. Prepare Payload (Map local Incident to IncidentDto)
-            // Note: We need to match the key names expected by the backend (PascalCase or camelCase depending on serialization)
-            // The backend uses camelCase by default in .NET Core + JS clients.
-            const payload = {
-                deviceId: "DEV-MOBILE-001", // Should come from secure store or config
-                incidentId: incident.id,
-                capturedAt: incident.created_at,
-                severity: incident.severity.toString(), // Map number to string if needed, or check logic
-                // ... map other fields
-                mediaUris: JSON.parse(incident.media_uris),
-                mlMetadata: JSON.parse(incident.ml_metadata),
-                note: incident.note,
-                advisory: incident.advisory
-            };
-
-            // 3. Send to Backend
-            await api.post('/incidents', payload);
-
-            console.log(`Uploaded incident ${incident.id}`);
-
-            // 4. Mark as Uploaded
-            markIncidentUploaded(incident.id);
-
-        } catch (error) {
-            console.error(`Failed to sync incident ${incident.id}`, error);
+        if (pendingIncidents.length === 0 && pendingTasks.length === 0) {
+            return;
         }
+
+        let syncedCount = 0;
+
+        // Sync Incidents
+        for (const incident of pendingIncidents) {
+            try {
+                const payload = {
+                    deviceId: "DEV-MOBILE-001",
+                    incidentId: incident.id,
+                    // If we have a server_id, we should ideally send it, but existing API uses 'incidentId' as string.
+                    // The backend handles matching by this string ID.
+                    capturedAt: incident.created_at,
+                    mediaUris: JSON.parse(incident.media_uris || '[]'),
+                    mlMetadata: JSON.parse(incident.ml_metadata || '{}'),
+                    severity: incident.severity >= 3 ? "High" : incident.severity >= 2 ? "Medium" : "Low",
+                    category: incident.department || "Other",
+                    advisory: incident.advisory,
+                    note: incident.note,
+                    status: incident.status,
+                    area: incident.area,
+                    plant: incident.plant
+                };
+
+                const response = await api.post('/incidents', payload);
+                // Assume response returns { id: number }
+                if (response.data && response.data.id) {
+                    await updateIncidentServerId(incident.id, response.data.id);
+                } else {
+                     await markIncidentUploaded(incident.id);
+                }
+                syncedCount++;
+            } catch (error) {
+                console.error(`Failed to sync incident ${incident.id}`, error);
+            }
+        }
+
+        // Sync Tasks
+        for (const task of pendingTasks) {
+            try {
+                // If we have a server ID, we use it for checking, but for now we follow the string ID pattern.
+                const payload = {
+                    id: task.id,
+                    title: task.title,
+                    assignee: task.assignee,
+                    description: task.description,
+                    priority: task.priority,
+                    status: task.status,
+                    dueDate: task.due_date ? task.due_date : null,
+                    comments: JSON.parse(task.comments || '[]'),
+                    area: task.area,
+                    plant: task.plant,
+                    precautions: task.precautions,
+                    incidentId: task.incident_id,
+                    delayReason: task.delay_reason,
+                    // Send server_id if we have it, though backend currently ignores it in favor of 'id' string matching
+                    serverId: task.server_id 
+                };
+
+                const response = await api.post('/tasks/sync', payload);
+                if (response.data && response.data.id) {
+                     await updateTaskServerId(task.id, response.data.id);
+                } else {
+                     await markTaskUploaded(task.id);
+                }
+                syncedCount++;
+            } catch (error) {
+                console.error(`Failed to sync task ${task.id}`, error);
+            }
+        }
+
+        if (syncedCount > 0) {
+            // Fallback to Alert since expo-notifications is restricted in Expo Go on Android
+            Alert.alert("Sync Complete", `All pending data (${syncedCount} items) has been uploaded.`);
+            
+            // Allow calling component to refresh its state
+            if (onSyncComplete) {
+                onSyncComplete();
+            }
+        }
+    } catch (error) {
+        console.error('Error in syncData:', error);
+    } finally {
+        isSyncing = false;
     }
 };

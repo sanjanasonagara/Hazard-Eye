@@ -1,12 +1,14 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, SafeAreaView, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
-import { getTaskById, Task, updateTaskStatus, addTaskComment, deleteTask, updateTaskDetails, getIncidentById, Incident, TaskComment } from '../../../src/services/DatabaseMock';
+import { getTaskById, Task, updateTaskStatus, addTaskComment, deleteTask, updateTaskDetails, getIncidentById, Incident } from '../../../src/services/Database';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, CardHeader, CardBody } from '../../../src/components/UI/Card';
 import { Badge } from '../../../src/components/UI/Badge';
 import { Button } from '../../../src/components/UI/Button';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
+import { TaskComment } from '../../../src/services/Database';
 
 type TabType = 'overview' | 'resolution' | 'incident';
 
@@ -31,28 +33,28 @@ export default function TaskDetailScreen() {
 
     useFocusEffect(
         useCallback(() => {
-            loadData();
+            if (typeof id === 'string') {
+                loadData(id);
+            }
         }, [id])
     );
 
-    const loadData = () => {
-        if (typeof id === 'string') {
-            const data = getTaskById(id);
-            setTask(data);
-            if (data?.incident_id) {
-                const inc = getIncidentById(data.incident_id);
-                setLinkedIncident(inc);
-            }
+    const loadData = async (taskId: string) => {
+        const data = await getTaskById(taskId);
+        setTask(data);
+        if (data?.incident_id) {
+            const inc = await getIncidentById(data.incident_id);
+            setLinkedIncident(inc);
         }
     };
 
     if (!task) {
         return (
-            <SafeAreaView style={styles.container}>
-                <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <SafeAreaView>
                     <Text>Loading...</Text>
-                </View>
-            </SafeAreaView>
+                </SafeAreaView>
+            </View>
         );
     }
 
@@ -60,10 +62,22 @@ export default function TaskDetailScreen() {
 
     // -- Actions --
 
-    const handleMarkDone = () => {
-        updateTaskStatus(task.id, 'Completed');
-        Alert.alert("Success", "Task marked as completed.");
-        loadData();
+    const handleMarkDone = async () => {
+        Alert.alert(
+            "Complete Task",
+            "Mark this task as completed?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Mark Done",
+                    onPress: async () => {
+                        await updateTaskStatus(task.id, 'Completed');
+                        Alert.alert("Success", "Task marked as completed.");
+                        await loadData(task.id);
+                    }
+                }
+            ]
+        );
     };
 
     const handleDeleteTask = () => {
@@ -75,8 +89,8 @@ export default function TaskDetailScreen() {
                 {
                     text: "Delete",
                     style: "destructive",
-                    onPress: () => {
-                        deleteTask(task.id);
+                    onPress: async () => {
+                        await deleteTask(task.id);
                         router.back();
                     }
                 }
@@ -84,29 +98,20 @@ export default function TaskDetailScreen() {
         );
     };
 
-    const handleAddComment = () => {
+    const handleAddComment = async () => {
         if (!commentText.trim()) return;
-        const newComment: TaskComment = {
-            id: Date.now().toString(),
-            taskId: task.id,
-            userId: 'current-user', // Mock
-            userName: 'Current User',
-            userRole: 'supervisor',
-            content: commentText,
-            timestamp: new Date().toISOString()
-        };
-        addTaskComment(task.id, newComment);
+        await addTaskComment(task.id, commentText);
         setCommentText('');
         setShowCommentModal(false);
-        loadData();
+        await loadData(task.id);
     };
 
-    const handleDelaySubmit = () => {
+    const handleDelaySubmit = async () => {
         if (!delayReason.trim()) return;
-        updateTaskStatus(task.id, 'Delayed', delayReason);
+        await updateTaskStatus(task.id, 'Delayed', delayReason);
         setDelayReason('');
         setShowDelayModal(false);
-        loadData();
+        await loadData(task.id);
     };
 
     const handleEditOpen = () => {
@@ -121,10 +126,10 @@ export default function TaskDetailScreen() {
         setShowEditModal(true);
     };
 
-    const handleEditSave = () => {
-        updateTaskDetails(task.id, editForm);
+    const handleEditSave = async () => {
+        await updateTaskDetails(task.id, editForm);
         setShowEditModal(false);
-        loadData();
+        await loadData(task.id);
     };
 
     // -- Renders --
@@ -146,7 +151,7 @@ export default function TaskDetailScreen() {
     );
 
     const renderOverview = () => {
-        const comments = JSON.parse(task.comments || '[]') as TaskComment[];
+        const rawComments = JSON.parse(task.comments || '[]') as (string | TaskComment)[];
 
         return (
             <View style={{ gap: 16 }}>
@@ -167,6 +172,15 @@ export default function TaskDetailScreen() {
                     </CardBody>
                 </Card>
 
+                {task.delay_reason && (
+                    <Card style={{ borderColor: '#FBD38D', borderWidth: 1 }}>
+                        <CardHeader><Text style={[styles.cardTitle, { color: '#C05621' }]}>Current Delay Status</Text></CardHeader>
+                        <CardBody>
+                            <Text style={{ fontWeight: '600', color: '#C05621' }}>{task.delay_reason}</Text>
+                        </CardBody>
+                    </Card>
+                )}
+
                 <Card>
                     <CardHeader style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Text style={styles.cardTitle}>Comments & Activity</Text>
@@ -175,38 +189,31 @@ export default function TaskDetailScreen() {
                         </Button>
                     </CardHeader>
                     <CardBody>
-                        {comments.length === 0 ? (
+                        {rawComments.length === 0 ? (
                             <Text style={styles.emptyText}>No comments yet.</Text>
                         ) : (
                             <View style={{ gap: 12 }}>
-                                {comments.map((c, i) => (
-                                    <View key={i} style={styles.commentBox}>
-                                        <View style={styles.commentHeader}>
-                                            <Text style={styles.commentUser}>{c.userName}</Text>
-                                            <Text style={styles.commentTime}>{new Date(c.timestamp).toLocaleString()}</Text>
+                                {rawComments.map((c, i) => {
+                                    const isNewFormat = typeof c === 'object' && c !== null && 'text' in c;
+                                    const text = isNewFormat ? c.text : c as string;
+                                    const timestamp = isNewFormat ? c.timestamp : null;
+                                    return (
+                                        <View key={i} style={styles.commentBox}>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Text style={styles.commentContent}>{text}</Text>
+                                                {timestamp && !isNaN(new Date(timestamp).getTime()) && (
+                                                    <Text style={styles.commentTime}>
+                                                        {formatDistanceToNow(new Date(timestamp), { addSuffix: true })}
+                                                    </Text>
+                                                )}
+                                            </View>
                                         </View>
-                                        <Text style={styles.commentContent}>{c.content}</Text>
-                                    </View>
-                                ))}
+                                    );
+                                })}
                             </View>
                         )}
                     </CardBody>
                 </Card>
-
-                {/* Delay History */}
-                {task.delayHistory && task.delayHistory.length > 0 && (
-                    <Card style={{ borderColor: '#FBD38D', borderWidth: 1 }}>
-                        <CardHeader><Text style={[styles.cardTitle, { color: '#C05621' }]}>Delay History</Text></CardHeader>
-                        <CardBody>
-                            {task.delayHistory.map((h, i) => (
-                                <View key={i} style={{ marginBottom: 8 }}>
-                                    <Text style={{ fontWeight: '600', color: '#C05621' }}>{h.reason}</Text>
-                                    <Text style={{ fontSize: 10, color: '#718096' }}>{new Date(h.date).toLocaleString()}</Text>
-                                </View>
-                            ))}
-                        </CardBody>
-                    </Card>
-                )}
             </View>
         );
     };
@@ -220,15 +227,8 @@ export default function TaskDetailScreen() {
                     <View style={styles.metaRow}>
                         <Ionicons name="person" size={16} color="#3182CE" />
                         <View>
-                            <Text style={styles.metaValue}>{task.assignedToName || task.assignee}</Text>
+                            <Text style={styles.metaValue}>{task.assignee}</Text>
                             <Text style={styles.metaSub}>Assigned To</Text>
-                        </View>
-                    </View>
-                    <View style={styles.metaRow}>
-                        <Ionicons name="person-outline" size={16} color="#718096" />
-                        <View>
-                            <Text style={styles.metaValue}>{task.createdByName || 'System'}</Text>
-                            <Text style={styles.metaSub}>Created By</Text>
                         </View>
                     </View>
                 </View>
@@ -254,7 +254,7 @@ export default function TaskDetailScreen() {
                 <View style={[styles.metaSection, { borderTopWidth: 1, borderTopColor: '#EDF2F7', paddingTop: 16 }]}>
                     <Text style={styles.metaLabel}>PRIORITY & RISK</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Badge variant={task.priority}>{task.priority}</Badge>
+                        <Badge variant={task.priority.charAt(0).toUpperCase() + task.priority.slice(1).toLowerCase() as any}>{task.priority}</Badge>
                         {isOverdue && (
                             <View style={styles.overdueBadge}>
                                 <Ionicons name="alert" size={12} color="#C53030" />
@@ -274,13 +274,12 @@ export default function TaskDetailScreen() {
                     <Card>
                         <CardBody>
                             <View style={{ flexDirection: 'row', gap: 12 }}>
-                                {/* Placeholder for Incident Image if available, logic same as Incident List */}
                                 <View style={{ width: 80, height: 80, backgroundColor: '#EDF2F7', borderRadius: 8 }} />
                                 <View style={{ flex: 1 }}>
                                     <Text style={styles.cardTitle} numberOfLines={1}>{linkedIncident.department} Issue</Text>
                                     <Text numberOfLines={2} style={styles.bodyText}>{linkedIncident.advisory}</Text>
                                     <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
-                                        <Badge variant={linkedIncident.status}>{linkedIncident.status}</Badge>
+                                        <Badge variant={linkedIncident.status as any}>{linkedIncident.status}</Badge>
                                     </View>
                                 </View>
                             </View>
@@ -297,28 +296,32 @@ export default function TaskDetailScreen() {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                    <Ionicons name="arrow-back" size={24} color="#1A202C" />
-                    <Text style={styles.backText}>Back</Text>
-                </TouchableOpacity>
-                <View style={{ flex: 1, marginLeft: 16 }}>
-                    <Text style={styles.headerTitle} numberOfLines={1}>Task Details</Text>
-                    <Text style={styles.headerSub}>ID: {task.id}</Text>
-                </View>
-                {/* Header Actions */}
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                    <Button variant="ghost" size="sm" onPress={handleEditOpen}><Ionicons name="create-outline" size={20} /></Button>
-                    <Button variant="ghost" size="sm" onPress={handleDeleteTask}><Ionicons name="trash-outline" size={20} color="#C53030" /></Button>
-                </View>
+                <SafeAreaView edges={['top', 'left', 'right']}>
+                    <View style={styles.headerContentInner}>
+                        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+                            <Ionicons name="arrow-back" size={24} color="#1A202C" />
+                            <Text style={styles.backText}>Back</Text>
+                        </TouchableOpacity>
+                        <View style={{ flex: 1, marginLeft: 16 }}>
+                            <Text style={styles.headerTitle} numberOfLines={1}>Task Details</Text>
+                            <Text style={styles.headerSub}>ID: {task.id}</Text>
+                        </View>
+                        {/* Header Actions */}
+                        <View style={{ flexDirection: 'row', gap: 8 }}>
+                            <Button variant="ghost" size="sm" onPress={handleEditOpen}><Ionicons name="create-outline" size={20} /></Button>
+                            <Button variant="ghost" size="sm" onPress={handleDeleteTask}><Ionicons name="trash-outline" size={20} color="#C53030" /></Button>
+                        </View>
+                    </View>
+                </SafeAreaView>
             </View>
 
             {/* Quick Actions Bar */}
             <View style={styles.actionBar}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-                    <Badge variant={task.status}>{task.status}</Badge>
-                    <Badge variant={task.priority}>{task.priority}</Badge>
+                    <Badge variant={task.status as any}>{task.status}</Badge>
+                    <Badge variant={task.priority.charAt(0).toUpperCase() + task.priority.slice(1).toLowerCase() as any}>{task.priority}</Badge>
                 </View>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                     {task.status !== 'Completed' && (
@@ -339,7 +342,7 @@ export default function TaskDetailScreen() {
             </ScrollView>
 
             {/* Edit Modal */}
-            <Modal visible={showEditModal} animationType="slide" presentationStyle="pageSheet">
+            <Modal visible={showEditModal} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setShowEditModal(false)}>
                 <SafeAreaView style={{ flex: 1, backgroundColor: '#F7FAFC' }}>
                     <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>Edit Task</Text>
@@ -370,7 +373,7 @@ export default function TaskDetailScreen() {
             </Modal>
 
             {/* Comment Modal */}
-            <Modal visible={showCommentModal} transparent animationType="fade">
+            <Modal visible={showCommentModal} transparent animationType="fade" onRequestClose={() => setShowCommentModal(false)}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalCard}>
                         <Text style={styles.modalTitle}>Add Comment</Text>
@@ -390,7 +393,7 @@ export default function TaskDetailScreen() {
             </Modal>
 
             {/* Delay Modal */}
-            <Modal visible={showDelayModal} transparent animationType="fade">
+            <Modal visible={showDelayModal} transparent animationType="fade" onRequestClose={() => setShowDelayModal(false)}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalCard}>
                         <Text style={styles.modalTitle}>Report Delay</Text>
@@ -409,58 +412,55 @@ export default function TaskDetailScreen() {
                 </View>
             </Modal>
 
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F7FAFC' },
     header: {
-        flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: '#fff',
-        borderBottomWidth: 1, borderBottomColor: '#E2E8F0'
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#E2E8F0'
+    },
+    headerContentInner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        paddingTop: 8,
+        paddingBottom: 12,
     },
     backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
     backText: { fontSize: 16, color: '#1A202C' },
     headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1A202C' },
     headerSub: { fontSize: 12, color: '#718096' },
-
     actionBar: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
         padding: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#EDF2F7'
     },
-
     tabContainer: { flexDirection: 'row', backgroundColor: '#fff', paddingHorizontal: 16 },
     tab: { paddingVertical: 12, marginRight: 24, borderBottomWidth: 2, borderBottomColor: 'transparent' },
     tabActive: { borderBottomColor: '#3182CE' },
     tabText: { fontSize: 14, color: '#718096', fontWeight: '500' },
     tabTextActive: { color: '#3182CE', fontWeight: '600' },
-
     content: { padding: 16 },
     cardTitle: { fontSize: 16, fontWeight: '700', color: '#2D3748' },
     bodyText: { fontSize: 14, color: '#4A5568', lineHeight: 20 },
     emptyText: { textAlign: 'center', color: '#A0AEC0', padding: 20 },
-
     commentBox: { borderLeftWidth: 3, borderLeftColor: '#3182CE', paddingLeft: 12 },
-    commentHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-    commentUser: { fontWeight: '600', fontSize: 14, color: '#2D3748' },
-    commentTime: { fontSize: 12, color: '#718096' },
-    commentContent: { fontSize: 14, color: '#4A5568' },
-
+    commentContent: { fontSize: 14, color: '#4A5568', flex: 1 },
+    commentTime: { fontSize: 10, color: '#A0AEC0', marginLeft: 8 },
     metaSection: { marginBottom: 12 },
     metaLabel: { fontSize: 10, fontWeight: 'bold', color: '#A0AEC0', marginBottom: 8, letterSpacing: 1 },
     metaRow: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: 12 },
     metaValue: { fontSize: 14, fontWeight: '600', color: '#2D3748' },
     metaSub: { fontSize: 10, fontWeight: '600', color: '#A0AEC0', textTransform: 'uppercase' },
-
     overdueBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#FFF5F5', padding: 6, borderRadius: 4, borderWidth: 1, borderColor: '#FEB2B2' },
     overdueText: { color: '#C53030', fontSize: 10, fontWeight: 'bold' },
-
-    // Modals
     modalHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, alignItems: 'center', backgroundColor: '#fff' },
     modalTitle: { fontSize: 18, fontWeight: 'bold' },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
     modalCard: { backgroundColor: '#fff', borderRadius: 12, padding: 20 },
-
     inputGroup: { marginBottom: 16 },
     label: { fontSize: 14, fontWeight: '600', color: '#4A5568', marginBottom: 6 },
     input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 8, padding: 12, fontSize: 16 },

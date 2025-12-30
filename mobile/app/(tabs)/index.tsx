@@ -3,35 +3,52 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState, useCallback } from 'react';
-import { initDatabase, getPendingIncidents } from '../../src/services/DatabaseMock';
-import { syncIncidents } from '../../src/services/SyncService';
+import { initDatabase, getPendingIncidents, getTasks, Task, Device, updateDeviceSyncTime } from '../../src/services/Database';
+import { syncData } from '../../src/services/SyncService';
+import { useDeviceStore } from '../../src/store/useDeviceStore';
 
 export default function HomeScreen() {
     const router = useRouter();
+    const { device, refreshDeviceData } = useDeviceStore();
     const [pendingCount, setPendingCount] = useState(0);
+    const [taskCount, setTaskCount] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
-        initDatabase();
-        refreshPending();
+        const setup = async () => {
+            await initDatabase();
+            await refreshData();
+        };
+        setup();
     }, []);
 
-    const refreshPending = () => {
-        const pending = getPendingIncidents();
+    const refreshData = async () => {
+        const pending = await getPendingIncidents();
         setPendingCount(pending.length);
+
+        const allTasks = await getTasks();
+        const pendingTasks = allTasks.filter(t => t.status !== 'Completed' && t.status !== 'completed');
+        setTaskCount(pendingTasks.length);
+        
+        await refreshDeviceData();
     };
 
     const handleSync = async () => {
         setRefreshing(true);
-        await syncIncidents();
-        refreshPending();
+        // Pass refreshData as callback so it runs after successful sync
+        await syncData(async () => {
+            if (device) {
+                await updateDeviceSyncTime(device.id);
+            }
+            await refreshData();
+        });
         setRefreshing(false);
     };
 
-    const onRefresh = useCallback(() => {
+    const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        refreshPending();
-        setTimeout(() => setRefreshing(false), 1000);
+        await refreshData();
+        setRefreshing(false);
     }, []);
 
     return (
@@ -53,11 +70,21 @@ export default function HomeScreen() {
                     {/* Device Info Card */}
                     <View style={styles.deviceCard}>
                         <View style={styles.deviceRow}>
-                            <Text style={styles.deviceText}>Device ID: DEV-NJI1YGHT4</Text>
-                            <Text style={styles.deviceText}></Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <Ionicons name="phone-portrait-outline" size={16} color="#BFDBFE" />
+                                <Text style={styles.deviceText}>{device?.name || 'Loading Device...'}</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                <Ionicons name="battery-charging" size={16} color={device && device.battery_level < 20 ? '#EF4444' : '#10B981'} />
+                                <Text style={styles.deviceText}>{device?.battery_level || 0}%</Text>
+                            </View>
                         </View>
-                        <View style={[styles.deviceRow, { marginTop: 10 }]}>
-                            <Text style={styles.deviceStorageText}>Stored locally: {pendingCount} reports</Text>
+                        <View style={[styles.deviceRow, { marginTop: 4 }]}>
+                           <Text style={[styles.deviceText, { opacity: 0.7, fontSize: 12 }]}>{device?.station || 'Station Unknown'}</Text>
+                           <Text style={[styles.deviceText, { opacity: 0.7, fontSize: 12 }]}>{device?.id || '...'}</Text>
+                        </View>
+                        <View style={[styles.deviceRow, { marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)' }]}>
+                            <Text style={styles.deviceStorageText}>Storage: {device?.storage_used || '...'}</Text>
                             {pendingCount > 0 && (
                                 <TouchableOpacity onPress={handleSync} style={styles.syncButtonSmall}>
                                     <Ionicons name="cloud-upload-outline" size={16} color="#fff" />
@@ -104,7 +131,7 @@ export default function HomeScreen() {
                             <Ionicons name="clipboard" size={32} color="#F59E0B" />
                         </View>
                         <Text style={styles.gridTitle}>My Tasks</Text>
-                        <Text style={styles.gridSubtitle}>3 pending tasks</Text>
+                        <Text style={styles.gridSubtitle}>{taskCount} pending tasks</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -112,16 +139,15 @@ export default function HomeScreen() {
                 <View style={styles.mlCard}>
                     <View style={styles.mlHeader}>
                         <Text style={styles.mlTitle}>Edge ML Status</Text>
-                        <View style={styles.mlBadge}>
-                            <Ionicons name="" size={14} color="#126807ff" />
-                            <Text style={styles.mlBadgeText}>INACTIVE</Text>
+                        <View style={[styles.mlBadge, { backgroundColor: '#10B910' }]}>
+                            <Ionicons name="ellipse" size={14} color="#fff" />
+                            <Text style={styles.mlBadgeText}>ACTIVE</Text>
                         </View>
                     </View>
                     <Text style={styles.mlSubtitle}>Model loaded and ready</Text>
                     <View style={styles.mlFooter}>
-                        <Text style={styles.mlMeta}>Version:</Text>
-
-                        <Text style={styles.mlMeta}>Updated:</Text>
+                        <Text style={styles.mlMeta}>Version: {device?.model_version || '...'}</Text>
+                        <Text style={styles.mlMeta}>Updated: {device?.model_updated || '...'}</Text>
                     </View>
                 </View>
 
@@ -133,10 +159,10 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        backgroundColor: '#F3F4F6', // Light gray background
+        backgroundColor: '#F3F4F6',
     },
     headerContainer: {
-        backgroundColor: '#2563EB', // Blue header
+        backgroundColor: '#2563EB',
         paddingBottom: 20,
         paddingHorizontal: 20,
         borderBottomLeftRadius: 24,
@@ -162,13 +188,13 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     offlineText: {
-        color: '#FBBF24', // Amber/Yellow
+        color: '#FBBF24',
         fontWeight: 'bold',
         fontSize: 14,
         letterSpacing: 0.5,
     },
     deviceCard: {
-        backgroundColor: 'rgba(30, 58, 138, 0.6)', // Darker blue, semi-transparent
+        backgroundColor: 'rgba(30, 58, 138, 0.6)',
         padding: 16,
         borderRadius: 16,
         borderWidth: 1,
@@ -180,7 +206,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     deviceText: {
-        color: '#BFDBFE', // Light blue text
+        color: '#BFDBFE',
         fontSize: 14,
     },
     deviceStorageText: {
@@ -208,7 +234,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#1F2937', // Dark gray
+        color: '#1F2937',
         marginBottom: 16,
     },
     gridContainer: {
@@ -218,7 +244,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     gridItem: {
-        width: '47%', // Slightly less than half to fit gap/margin
+        width: '47%',
         backgroundColor: '#fff',
         borderRadius: 20,
         padding: 16,
@@ -228,14 +254,14 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },
-        marginBottom: 16, // Use marginBottom for row spacing
+        marginBottom: 16,
     },
     gridItemFull: {
         width: '100%',
         backgroundColor: '#fff',
         borderRadius: 20,
         padding: 16,
-        flexDirection: 'row', // Horizontal layout for full width
+        flexDirection: 'row',
         alignItems: 'center',
         elevation: 2,
         shadowColor: '#000',
@@ -271,7 +297,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         padding: 20,
         marginTop: 4,
-        elevation: 2, // Slight shadow
+        elevation: 2,
     },
     mlHeader: {
         flexDirection: 'row',
@@ -287,14 +313,14 @@ const styles = StyleSheet.create({
     mlBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#cf3131ff', // Light green bg
+        backgroundColor: '#ef4444',
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 12,
         gap: 4,
     },
     mlBadgeText: {
-        color: '#ffffffff', // Dark green text
+        color: '#fff',
         fontSize: 12,
         fontWeight: 'bold',
     },
@@ -304,7 +330,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     mlFooter: {
-        flexDirection: 'column', // Stack vertically
+        flexDirection: 'column',
         gap: 4,
         borderTopWidth: 1,
         borderTopColor: '#E5E7EB',

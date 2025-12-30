@@ -32,9 +32,13 @@ const api = axios.create({
 
 // Request Interceptor: Add Token
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-    const token = await SecureStore.getItemAsync('user_token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+    try {
+        const token = await SecureStore.getItemAsync('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+    } catch (e) {
+        console.error('API Context - Failed to get token:', e);
     }
     return config;
 });
@@ -44,10 +48,8 @@ api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
         if (error.response?.status === 401) {
-            // Token expired or invalid
-            await SecureStore.deleteItemAsync('user_token');
-            // You might want to trigger a navigation to login here
-            // or emit an event that the app listens to
+            console.warn('API Context - 401 Unauthorized detected.');
+            await SecureStore.deleteItemAsync('token');
         }
         return Promise.reject(error);
     }

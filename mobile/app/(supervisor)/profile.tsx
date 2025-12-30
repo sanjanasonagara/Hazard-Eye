@@ -12,7 +12,7 @@ export default function SupervisorProfileScreen() {
             await SecureStore.deleteItemAsync('token');
             await SecureStore.deleteItemAsync('user');
             await SecureStore.deleteItemAsync('userRole');
-            router.replace('/(tabs)/');
+            router.replace('/login');
         } catch (error) {
             Alert.alert("Error", "Failed to logout properly");
         }

@@ -1,8 +1,9 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as FileSystem from 'expo-file-system';
 
 export default function CaptureScreen() {
@@ -51,20 +52,23 @@ export default function CaptureScreen() {
 
     return (
         <View style={styles.container}>
+            <Stack.Screen options={{ headerShown: false }} />
             <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.iconButton} onPress={toggleCameraFacing}>
-                        <Ionicons name="camera-reverse" size={32} color="white" />
-                    </TouchableOpacity>
+                <SafeAreaView style={styles.safeContainer} edges={['bottom', 'top']}>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity style={styles.iconButton} onPress={toggleCameraFacing}>
+                            <Ionicons name="camera-reverse" size={32} color="white" />
+                        </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-                        <View style={styles.captureInner} />
-                    </TouchableOpacity>
+                        <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
+                            <View style={styles.captureInner} />
+                        </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.iconButton} onPress={() => router.back()}>
-                        <Ionicons name="close" size={32} color="white" />
-                    </TouchableOpacity>
-                </View>
+                        <TouchableOpacity style={styles.iconButton} onPress={() => router.back()}>
+                            <Ionicons name="close" size={32} color="white" />
+                        </TouchableOpacity>
+                    </View>
+                </SafeAreaView>
             </CameraView>
         </View>
     );
@@ -82,11 +86,15 @@ const styles = StyleSheet.create({
     camera: {
         flex: 1,
     },
-    buttonContainer: {
+    safeContainer: {
         flex: 1,
+        justifyContent: 'flex-end',
+    },
+    buttonContainer: {
         flexDirection: 'row',
         backgroundColor: 'transparent',
-        margin: 64,
+        marginHorizontal: 32,
+        marginBottom: 32,
         justifyContent: 'space-between',
         alignItems: 'flex-end',
     },

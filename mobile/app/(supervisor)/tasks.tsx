@@ -3,11 +3,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { getTasks, Task, createTask } from '../../src/services/DatabaseMock';
+import { getTasks, Task, createTask } from '../../src/services/Database';
 import { Card, CardHeader, CardBody } from '../../src/components/UI/Card';
 import { Badge } from '../../src/components/UI/Badge';
 import { Button } from '../../src/components/UI/Button';
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 
 type TaskStatus = 'Open' | 'In Progress' | 'Completed' | 'Delayed';
 type Priority = 'High' | 'Medium' | 'Low';
@@ -23,6 +23,9 @@ export default function SupervisorTasksScreen() {
     const router = useRouter();
     const [tasks, setTasks] = useState<Task[]>([]);
     const [isCreateModalVisible, setCreateModalVisible] = useState(false);
+    const [isAreaPickerVisible, setAreaPickerVisible] = useState(false);
+    const [isPlantPickerVisible, setPlantPickerVisible] = useState(false);
+    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 
     // Filter Logic
     const [searchQuery, setSearchQuery] = useState('');
@@ -56,15 +59,15 @@ export default function SupervisorTasksScreen() {
         }
     }, [params.createForIncident]);
 
-    const loadTasks = () => {
-        setTasks(getTasks());
+    const loadTasks = async () => {
+        const data = await getTasks();
+        setTasks(data);
     };
 
     // Derived State for Filtering
     const filteredTasks = useMemo(() => {
         let filtered = [...tasks];
 
-        // Search
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
             filtered = filtered.filter(task => {
@@ -72,21 +75,18 @@ export default function SupervisorTasksScreen() {
                     task.description,
                     task.area,
                     task.plant,
-                    task.assignee,
-                    task.assignedToName
+                    task.assignee
                 ];
                 return haystacks.some(value => value && value.toLowerCase().includes(q));
             });
         }
 
-        // Status Filter
         if (statusFilter.length > 0) {
             filtered = filtered.filter(t => statusFilter.includes(t.status as TaskStatus));
         }
 
-        // Priority Filter
         if (priorityFilter.length > 0) {
-            filtered = filtered.filter(t => priorityFilter.includes(t.priority as Priority));
+            filtered = filtered.filter(t => priorityFilter.includes(t.priority.charAt(0).toUpperCase() + t.priority.slice(1).toLowerCase() as Priority));
         }
 
         return filtered;
@@ -100,7 +100,7 @@ export default function SupervisorTasksScreen() {
         setPriorityFilter(prev => prev.includes(priority) ? prev.filter(p => p !== priority) : [...prev, priority]);
     };
 
-    const handleCreateTask = () => {
+    const handleCreateTask = async () => {
         if (!newDescription || !newAssignee || !newArea || !newPlant || !newDueDate) {
             Alert.alert("Error", "Description, Assignee, Area, Plant, and Due Date are required.");
             return;
@@ -108,11 +108,10 @@ export default function SupervisorTasksScreen() {
 
         const task: Task = {
             id: 'T-' + Math.floor(Math.random() * 10000).toString(),
-            title: newDescription, // Mobile doesn't have title field in UI, reusing desc
+            title: newDescription,
             assignee: newAssignee,
-            assignedToName: newAssignee, // Simplification for mock
             description: newDescription,
-            priority: newPriority,
+            priority: newPriority.toLowerCase() as any,
             status: 'Open',
             due_date: newDueDate,
             comments: '[]',
@@ -120,17 +119,17 @@ export default function SupervisorTasksScreen() {
             plant: newPlant,
             precautions: newPrecautions,
             incident_id: incidentId || undefined,
-            created_at: new Date().toISOString(),
-            createdBy: 'current-user-id',
-            createdByName: 'You'
         };
 
-        createTask(task);
+        await createTask(task);
         setCreateModalVisible(false);
         resetForm();
-        loadTasks();
+        await loadTasks();
         Alert.alert("Success", "Task created successfully.");
     };
+
+    const [users, setUsers] = useState<{ id: number; firstName: string; lastName: string }[]>([]);
+    const [isAssigneePickerVisible, setAssigneePickerVisible] = useState(false);
 
     const resetForm = () => {
         setNewAssignee('');
@@ -141,6 +140,26 @@ export default function SupervisorTasksScreen() {
         setNewPlant('');
         setNewPrecautions('');
         setIncidentId(null);
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            loadTasks();
+            loadUsers();
+        }, [])
+    );
+
+    const loadUsers = async () => {
+        try {
+            // Import api dynamically or use the imported instance if accessible
+            const { default: api } = await import('../../src/services/api');
+            const response = await api.get('/auth/users?role=Worker');
+            if (response.data) {
+                setUsers(response.data);
+            }
+        } catch (error) {
+            console.log('Failed to load users: not online or authorized', error);
+        }
     };
 
     const isOverdue = (dueDate: string) => {
@@ -156,8 +175,8 @@ export default function SupervisorTasksScreen() {
                     <CardBody>
                         <View style={styles.cardHeaderRow}>
                             <View style={styles.badgeRow}>
-                                <Badge variant={item.priority}>{item.priority}</Badge>
-                                <Badge variant={item.status}>{item.status}</Badge>
+                                <Badge variant={item.priority.charAt(0).toUpperCase() + item.priority.slice(1) as any}>{item.priority}</Badge>
+                                <Badge variant={item.status as any}>{item.status}</Badge>
                                 {overdue && <Badge variant="High" style={{ backgroundColor: '#FED7D7' }}><Text style={{ color: '#C53030' }}>Overdue</Text></Badge>}
                             </View>
                         </View>
@@ -173,13 +192,13 @@ export default function SupervisorTasksScreen() {
                             </View>
                             <View style={styles.metaItem}>
                                 <Ionicons name="person-outline" size={14} color="#718096" />
-                                <Text style={styles.metaText}>To: {item.assignedToName || item.assignee}</Text>
+                                <Text style={styles.metaText}>To: {item.assignee}</Text>
                             </View>
                         </View>
 
                         <View style={styles.locationRow}>
                             <Text style={styles.locationText}>{item.area} • {item.plant}</Text>
-                            {item.delayReason && (
+                            {item.delay_reason && (
                                 <View style={styles.delayBadge}>
                                     <Ionicons name="alert-circle" size={12} color="#C05621" />
                                     <Text style={styles.delayText}>Delayed</Text>
@@ -303,36 +322,42 @@ export default function SupervisorTasksScreen() {
                             <View style={{ flexDirection: 'row', gap: 12 }}>
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
                                     <Text style={styles.label}>Area *</Text>
-                                    <View style={styles.selectWrapper}>
-                                        {/* Mock Select using views for now, ideally use a picker or modal */}
-                                        <TextInput
-                                            style={styles.input}
-                                            placeholder="Area"
-                                            value={newArea}
-                                            onChangeText={setNewArea}
-                                        />
-                                    </View>
+                                    <TouchableOpacity
+                                        style={[styles.input, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}
+                                        onPress={() => setAreaPickerVisible(true)}
+                                    >
+                                        <Text style={{ color: newArea ? '#2D3748' : '#A0AEC0', fontSize: 16 }}>
+                                            {newArea || "Select Area"}
+                                        </Text>
+                                        <Ionicons name="chevron-down" size={20} color="#A0AEC0" />
+                                    </TouchableOpacity>
                                 </View>
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
                                     <Text style={styles.label}>Plant *</Text>
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="Plant"
-                                        value={newPlant}
-                                        onChangeText={setNewPlant}
-                                    />
+                                    <TouchableOpacity
+                                        style={[styles.input, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}
+                                        onPress={() => setPlantPickerVisible(true)}
+                                    >
+                                        <Text style={{ color: newPlant ? '#2D3748' : '#A0AEC0', fontSize: 16 }}>
+                                            {newPlant || "Select Plant"}
+                                        </Text>
+                                        <Ionicons name="chevron-down" size={20} color="#A0AEC0" />
+                                    </TouchableOpacity>
                                 </View>
                             </View>
 
                             <View style={{ flexDirection: 'row', gap: 12 }}>
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
                                     <Text style={styles.label}>Due Date *</Text>
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="YYYY-MM-DD"
-                                        value={newDueDate}
-                                        onChangeText={setNewDueDate}
-                                    />
+                                    <TouchableOpacity
+                                        style={[styles.input, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}
+                                        onPress={() => setDatePickerVisible(true)}
+                                    >
+                                        <Text style={{ color: newDueDate ? '#2D3748' : '#A0AEC0', fontSize: 16 }}>
+                                            {newDueDate || "Select Date"}
+                                        </Text>
+                                        <Ionicons name="calendar" size={20} color="#A0AEC0" />
+                                    </TouchableOpacity>
                                 </View>
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
                                     <Text style={styles.label}>Priority *</Text>
@@ -352,12 +377,15 @@ export default function SupervisorTasksScreen() {
 
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Assignee *</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Select employee..."
-                                    value={newAssignee}
-                                    onChangeText={setNewAssignee}
-                                />
+                                <TouchableOpacity
+                                    style={[styles.input, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}
+                                    onPress={() => setAssigneePickerVisible(true)}
+                                >
+                                    <Text style={{ color: newAssignee ? '#2D3748' : '#A0AEC0', fontSize: 16 }}>
+                                        {newAssignee || "Select Employee"}
+                                    </Text>
+                                    <Ionicons name="people" size={20} color="#A0AEC0" />
+                                </TouchableOpacity>
                             </View>
 
                             <View style={styles.inputGroup}>
@@ -379,6 +407,167 @@ export default function SupervisorTasksScreen() {
                         </ScrollView>
                     </SafeAreaView>
                 </View>
+            </Modal>
+
+            {/* Area Picker Modal */}
+            <Modal
+                visible={isAreaPickerVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setAreaPickerVisible(false)}
+            >
+                <TouchableOpacity 
+                    style={styles.modalOverlay} 
+                    activeOpacity={1} 
+                    onPress={() => setAreaPickerVisible(false)}
+                >
+                    <View style={styles.pickerModalContent}>
+                        <Text style={styles.pickerModalTitle}>Select Area</Text>
+                        <FlatList
+                            data={AREA_OPTIONS}
+                            keyExtractor={(item) => item}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={styles.pickerItem}
+                                    onPress={() => {
+                                        setNewArea(item);
+                                        setAreaPickerVisible(false);
+                                    }}
+                                >
+                                    <Text style={[styles.pickerItemText, newArea === item && styles.pickerItemTextActive]}>
+                                        {item}
+                                    </Text>
+                                    {newArea === item && <Ionicons name="checkmark" size={20} color="#2563EB" />}
+                                </TouchableOpacity>
+                            )}
+                        />
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+
+            {/* Plant Picker Modal */}
+            <Modal
+                visible={isPlantPickerVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setPlantPickerVisible(false)}
+            >
+                <TouchableOpacity 
+                    style={styles.modalOverlay} 
+                    activeOpacity={1} 
+                    onPress={() => setPlantPickerVisible(false)}
+                >
+                    <View style={styles.pickerModalContent}>
+                        <Text style={styles.pickerModalTitle}>Select Plant</Text>
+                        <FlatList
+                            data={PLANT_OPTIONS}
+                            keyExtractor={(item) => item}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={styles.pickerItem}
+                                    onPress={() => {
+                                        setNewPlant(item);
+                                        setPlantPickerVisible(false);
+                                    }}
+                                >
+                                    <Text style={[styles.pickerItemText, newPlant === item && styles.pickerItemTextActive]}>
+                                        {item}
+                                    </Text>
+                                    {newPlant === item && <Ionicons name="checkmark" size={20} color="#2563EB" />}
+                                </TouchableOpacity>
+                            )}
+                        />
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+
+            {/* Date Picker Modal */}
+            <Modal
+                visible={isDatePickerVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setDatePickerVisible(false)}
+            >
+                <TouchableOpacity 
+                    style={styles.modalOverlay} 
+                    activeOpacity={1} 
+                    onPress={() => setDatePickerVisible(false)}
+                >
+                    <View style={styles.pickerModalContent}>
+                        <Text style={styles.pickerModalTitle}>Select Due Date</Text>
+                        <FlatList
+                            data={Array.from({ length: 14 }).map((_, i) => format(addDays(new Date(), i), 'yyyy-MM-dd'))}
+                            keyExtractor={(item) => item}
+                            renderItem={({ item }) => {
+                                const displayDate = format(new Date(item), 'EEE, MMM d');
+                                return (
+                                    <TouchableOpacity
+                                        style={styles.pickerItem}
+                                        onPress={() => {
+                                            setNewDueDate(item);
+                                            setDatePickerVisible(false);
+                                        }}
+                                    >
+                                        <View>
+                                            <Text style={[styles.pickerItemText, newDueDate === item && styles.pickerItemTextActive]}>
+                                                {displayDate} <Text style={{fontSize: 12, color: '#A0AEC0'}}>({item})</Text>
+                                            </Text>
+                                        </View>
+                                        {newDueDate === item && <Ionicons name="checkmark" size={20} color="#2563EB" />}
+                                    </TouchableOpacity>
+                                );
+                            }}
+                        />
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+
+            {/* Assignee Picker Modal */}
+            <Modal
+                visible={isAssigneePickerVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setAssigneePickerVisible(false)}
+            >
+                <TouchableOpacity 
+                    style={styles.modalOverlay} 
+                    activeOpacity={1} 
+                    onPress={() => setAssigneePickerVisible(false)}
+                >
+                    <View style={styles.pickerModalContent}>
+                        <Text style={styles.pickerModalTitle}>Select Worker</Text>
+                         {users.length === 0 ? (
+                            <Text style={{ textAlign: 'center', color: '#718096', padding: 20 }}>
+                                No workers found. Ensure you are online.
+                            </Text>
+                        ) : (
+                            <FlatList
+                                data={users}
+                                keyExtractor={(item) => item.id.toString()}
+                                renderItem={({ item }) => {
+                                    const fullName = `${item.firstName} ${item.lastName}`;
+                                    return (
+                                        <TouchableOpacity
+                                            style={styles.pickerItem}
+                                            onPress={() => {
+                                                setNewAssignee(fullName);
+                                                setAssigneePickerVisible(false);
+                                            }}
+                                        >
+                                            <View>
+                                                <Text style={[styles.pickerItemText, newAssignee === fullName && styles.pickerItemTextActive]}>
+                                                    {fullName}
+                                                </Text>
+                                                <Text style={{fontSize: 12, color: '#A0AEC0'}}>ID: {item.id}</Text>
+                                            </View>
+                                            {newAssignee === fullName && <Ionicons name="checkmark" size={20} color="#2563EB" />}
+                                        </TouchableOpacity>
+                                    );
+                                }}
+                            />
+                        )}
+                    </View>
+                </TouchableOpacity>
             </Modal>
         </View>
     );
@@ -414,7 +603,7 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     createBtn: {
-        backgroundColor: '#EBF8FF', // Light blue bg for ghost/icon btn
+        backgroundColor: '#EBF8FF',
         width: 44,
         height: 44,
         borderRadius: 22,
@@ -476,7 +665,6 @@ const styles = StyleSheet.create({
     listContent: {
         padding: 16,
     },
-    // Card Styles
     cardHeaderRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -540,7 +728,6 @@ const styles = StyleSheet.create({
         color: '#C05621',
         fontWeight: '600',
     },
-    // Empty State
     emptyContainer: {
         alignItems: 'center',
         justifyContent: 'center',
@@ -557,7 +744,6 @@ const styles = StyleSheet.create({
         color: '#CBD5E0',
         marginTop: 4,
     },
-    // Modal
     modalContainer: {
         flex: 1,
         backgroundColor: '#F7FAFC',
@@ -598,10 +784,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#2D3748',
     },
-    selectWrapper: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-    },
     textArea: {
         height: 100,
         textAlignVertical: 'top',
@@ -635,5 +817,46 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 12,
         marginTop: 12,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    pickerModalContent: {
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        width: '100%',
+        maxHeight: '60%',
+        padding: 20,
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+    },
+    pickerModalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#2D3748',
+        marginBottom: 16,
+        textAlign: 'center',
+    },
+    pickerItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 14,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F7FAFC',
+    },
+    pickerItemText: {
+        fontSize: 16,
+        color: '#4A5568',
+    },
+    pickerItemTextActive: {
+        color: '#2563EB',
+        fontWeight: '600',
     },
 });

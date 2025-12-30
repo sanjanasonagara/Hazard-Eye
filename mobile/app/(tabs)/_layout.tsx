@@ -1,9 +1,22 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Tabs, useRouter } from 'expo-router';
+import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as SecureStore from 'expo-secure-store';
 
 export default function TabLayout() {
+    const router = useRouter();
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const token = await SecureStore.getItemAsync('token');
+            if (!token) {
+                router.replace('/login');
+            }
+        };
+        checkAuth();
+    }, []);
+
     return (
         <Tabs
             screenOptions={{
@@ -41,6 +54,13 @@ export default function TabLayout() {
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color }) => <Ionicons size={28} name="person" color={color} />,
+                }}
+            />
+            <Tabs.Screen
+                name="tasks/[id]"
+                options={{
+                    href: null,
+                    tabBarStyle: { display: 'none' }
                 }}
             />
         </Tabs>

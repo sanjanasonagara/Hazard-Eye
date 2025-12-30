@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
-import { getIncidentById, updateIncident, saveIncident, Incident } from '../src/services/DatabaseMock';
+import { getIncidentById, updateIncident, saveIncident, Incident } from '../src/services/Database';
 
 // Mock locations
 const LOCATIONS = [
@@ -34,28 +34,30 @@ export default function ReviewScreen() {
 
     // Load existing data if editing
     useEffect(() => {
-        if (existingId) {
-            const incident = getIncidentById(existingId);
-            if (incident) {
-                setIncidentId(incident.id);
-                setDescription(incident.advisory);
-                setSeverity(incident.severity);
-                setSeverity(incident.severity);
-                setSelectedLocation(incident.note);
-                if (incident.media_uris) {
-                    try {
-                        const media = JSON.parse(incident.media_uris);
-                        if (media.length > 0) setDisplayImage(media[0]);
-                    } catch (e) {
-                        console.log("Error parsing media URIs", e);
+        const loadIncidentData = async () => {
+            if (existingId) {
+                const incident = await getIncidentById(existingId);
+                if (incident) {
+                    setIncidentId(incident.id);
+                    setDescription(incident.advisory || '');
+                    setSeverity(incident.severity);
+                    setSelectedLocation(incident.note);
+                    if (incident.media_uris) {
+                        try {
+                            const media = JSON.parse(incident.media_uris);
+                            if (media.length > 0) setDisplayImage(media[0]);
+                        } catch (e) {
+                            console.log("Error parsing media URIs", e);
+                        }
                     }
+                    setIsEditing(true);
                 }
-                setIsEditing(true);
             }
-        }
+        };
+        loadIncidentData();
     }, [existingId]);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!selectedLocation) {
             Alert.alert("Missing Details", "Please select a location.");
             return;
@@ -64,21 +66,20 @@ export default function ReviewScreen() {
         if (isEditing) {
             const updatedIncident: Incident = {
                 id: incidentId,
-                created_at: timestamp.toISOString(), // Keep original timestamp? Ideally yes, but logic simplifies to new date for now or fetch orig.
-                media_uris: JSON.stringify([]), // Not updating media for now
+                created_at: timestamp.toISOString(),
+                media_uris: JSON.stringify([]), 
                 ml_metadata: '{}',
                 advisory: description,
                 severity,
                 sync_status: 'pending',
+                status: 'open',
                 note: selectedLocation
             };
 
-            // We need to pass the FULL incident to update, but Database.ts updateIncident only updates mutable fields.
-            // Let's rely on the DB function we just made which only touches advisory, severity, note.
             try {
-                updateIncident(updatedIncident);
+                await updateIncident(updatedIncident);
                 Alert.alert("Success", "Incident updated.", [
-                    { text: "OK", onPress: () => router.dismissTo('/(tabs)/history') }
+                    { text: "OK", onPress: () => router.replace('/(tabs)/history') }
                 ]);
             } catch (e) {
                 console.error(e);
@@ -88,18 +89,19 @@ export default function ReviewScreen() {
             const newIncident: Incident = {
                 id: incidentId,
                 created_at: timestamp.toISOString(),
-                media_uris: JSON.stringify([imageUri || '']), // Store as array
-                ml_metadata: '{}', // Placeholder
+                media_uris: JSON.stringify([imageUri || '']), 
+                ml_metadata: '{}', 
                 advisory: description,
                 severity,
                 sync_status: 'pending',
+                status: 'open',
                 note: selectedLocation
             };
 
             try {
-                saveIncident(newIncident);
+                await saveIncident(newIncident);
                 Alert.alert("Success", "Incident saved offline.", [
-                    { text: "OK", onPress: () => router.dismissTo('/(tabs)') }
+                    { text: "OK", onPress: () => router.replace('/(tabs)') }
                 ]);
             } catch (e) {
                 console.error(e);

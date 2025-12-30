@@ -1,9 +1,23 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Tabs, useRouter } from 'expo-router';
+import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as SecureStore from 'expo-secure-store';
 
 export default function SupervisorLayout() {
+    const router = useRouter();
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const token = await SecureStore.getItemAsync('token');
+            const role = await SecureStore.getItemAsync('userRole');
+            if (!token || (role !== 'admin' && role !== 'supervisor')) {
+                router.replace('/login');
+            }
+        };
+        checkAuth();
+    }, []);
+
     return (
         <Tabs
             screenOptions={{

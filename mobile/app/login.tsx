@@ -4,44 +4,50 @@ import { useRouter, Stack } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import api from '../src/services/api';
 
 export default function LoginScreen() {
     const router = useRouter();
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleLogin = async () => {
-        if (!username || !password) {
-            Alert.alert("Error", "Please enter both username and password");
+        if (!email || !password) {
+            Alert.alert("Error", "Please enter both email and password");
             return;
         }
 
         setLoading(true);
 
-        // Mock authentication logic
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+            const response = await api.post('/auth/login', {
+                email: email.includes('@') ? email : `${email}@hazardeye.com`,
+                password: password
+            });
 
-            let role = 'worker';
-            if (username.toLowerCase().includes('admin') || username.toLowerCase().includes('sup')) {
-                role = 'supervisor';
-            }
+            if (response.data && response.data.token) {
+                const { token, user } = response.data;
+                
+                // Save session
+                await SecureStore.setItemAsync('token', token);
+                await SecureStore.setItemAsync('user', user.firstName + ' ' + user.lastName);
+                await SecureStore.setItemAsync('userRole', user.role.toLowerCase());
 
-            // Save session
-            await SecureStore.setItemAsync('token', 'dummy-jwt-token');
-            await SecureStore.setItemAsync('user', username);
-            await SecureStore.setItemAsync('userRole', role);
-
-            // Navigate based on role
-            if (role === 'supervisor') {
-                router.replace('/(supervisor)/');
+                // Navigate based on role
+                if (user.role.toLowerCase() === 'admin' || user.role.toLowerCase() === 'supervisor') {
+                    router.replace('/(supervisor)/');
+                } else {
+                    router.replace('/(tabs)/');
+                }
             } else {
-                router.replace('/(tabs)/');
+                Alert.alert("Error", "Invalid login response from server");
             }
 
-        } catch (e) {
-            Alert.alert("Error", "Login failed. Please try again.");
+        } catch (e: any) {
+            console.error('Login failed:', e);
+            const msg = e.response?.data?.message || "Login failed. Please check your credentials and network.";
+            Alert.alert("Error", msg);
         } finally {
             setLoading(false);
         }
@@ -72,10 +78,10 @@ export default function LoginScreen() {
                         </View>
                         <TextInput
                             style={styles.input}
-                            placeholder="Username"
+                            placeholder="Email or Username"
                             placeholderTextColor="#94A3B8"
-                            value={username}
-                            onChangeText={setUsername}
+                            value={email}
+                            onChangeText={setEmail}
                             autoCapitalize="none"
                         />
                     </View>
