@@ -18,16 +18,10 @@ public class WorkTask
     public int Id { get; set; }
 
     [ForeignKey("Incident")]
-    public int? IncidentId { get; set; }
+    public int IncidentId { get; set; }
     
     [ForeignKey("AssignedToUser")]
     public int AssignedToUserId { get; set; }
-
-    [ForeignKey("PlantLocation")]
-    public int? PlantLocationId { get; set; }
-
-    [ForeignKey("AreaLocation")]
-    public int? AreaLocationId { get; set; }
 
     public string Description { get; set; } = string.Empty;
 
@@ -36,11 +30,14 @@ public class WorkTask
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? DueDate { get; set; }
     public DateTime? CompletedAt { get; set; }
-    public string Comments { get; set; } = "[]";
+
+    public string? Area { get; set; }
+    public string? Plant { get; set; }
+    
+    // Comments stored as JSON string
+    public string? Comments { get; set; }
 
     // Navigation properties
     public Incident Incident { get; set; } = null!;
     public User AssignedToUser { get; set; } = null!;
-    public Location? PlantLocation { get; set; }
-    public Location? AreaLocation { get; set; }
 }

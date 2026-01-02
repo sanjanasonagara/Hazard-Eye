@@ -105,8 +105,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("SafetyOfficerOrAdmin", policy => policy.RequireRole("SafetyOfficer", "Admin", "Supervisor"));
-    options.AddPolicy("AuditorOrAdmin", policy => policy.RequireRole("Auditor", "Admin"));
+    options.AddPolicy("SafetyOfficerOrAdmin", policy => policy.RequireRole("SafetyOfficer", "Admin", "Supervisor", "Worker"));
+    options.AddPolicy("AuditorOrAdmin", policy => policy.RequireRole("Auditor", "Admin", "Supervisor", "Worker"));
 });
 
 // CORS
@@ -116,7 +116,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins(frontendUrl, "http://localhost:5173", "http://localhost:3000")
+        policy.SetIsOriginAllowed(_ => true) // Allow any origin in dev
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -148,9 +148,20 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseStaticFiles(); // Default for wwwroot
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "uploads")),
+    RequestPath = "/uploads",
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    }
+});
 // app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
-app.UseStaticFiles(); // Enable static files for uploads
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -186,6 +197,3 @@ using (var scope = app.Services.CreateScope())
 app.Run();
 
 
-
-
-// Trigger restart for Controller Updates

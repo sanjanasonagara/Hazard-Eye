@@ -53,7 +53,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,SafetyOfficer")]
     public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto request)
     {
         if (!ModelState.IsValid)
@@ -71,7 +71,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPatch("{id}")] // Using Patch for partial updates
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,SafetyOfficer")]
     public async Task<ActionResult<UserDto>> UpdateUser(int id, [FromBody] UpdateUserDto request)
     {
         var updatedUser = await _authService.UpdateUserAsync(id, request);
@@ -86,7 +86,7 @@ public class UsersController : ControllerBase
     // Changing frontend to use standard PATCH /users/{id} is cleaner, but I'll add the route to be safe.
     
     [HttpPatch("{id}/permissions")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,SafetyOfficer")]
     public async Task<ActionResult<UserDto>> UpdatePermissions(int id, [FromBody] UpdateUserDto request)
     {
         // Re-use the same update logic since UpdateUserDto covers permissions
@@ -94,15 +94,22 @@ public class UsersController : ControllerBase
     }
     
     [HttpPatch("{id}/role")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,SafetyOfficer")]
     public async Task<ActionResult<UserDto>> UpdateRole(int id, [FromBody] UpdateUserDto request)
     {
         // Re-use logic for role/status updates
         return await UpdateUser(id, request);
     }
 
+    [HttpPatch("{id}/status")]
+    [Authorize(Roles = "Admin,SafetyOfficer")]
+    public async Task<ActionResult<UserDto>> UpdateStatus(int id, [FromBody] UpdateUserDto request)
+    {
+        return await UpdateUser(id, request);
+    }
+
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,SafetyOfficer")]
     public async Task<IActionResult> DeleteUser(int id)
     {
         var success = await _authService.DeleteUserAsync(id);

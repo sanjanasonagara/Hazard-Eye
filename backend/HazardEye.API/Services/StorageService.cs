@@ -34,17 +34,19 @@ public class StorageService : IStorageService
             .WithCredentials(accessKey, secretKey)
             .WithSSL(useSSL)
             .Build();
+
+        EnsureBucketExists();
     }
 
-    private async Task EnsureBucketExistsAsync()
+    private void EnsureBucketExists()
     {
         try
         {
             var existsArgs = new BucketExistsArgs().WithBucket(_bucketName);
-            if (!await _minioClient.BucketExistsAsync(existsArgs))
+            if (!_minioClient.BucketExistsAsync(existsArgs).GetAwaiter().GetResult())
             {
                 var makeArgs = new MakeBucketArgs().WithBucket(_bucketName);
-                await _minioClient.MakeBucketAsync(makeArgs);
+                _minioClient.MakeBucketAsync(makeArgs).GetAwaiter().GetResult();
             }
         }
         catch (Exception ex)
@@ -55,7 +57,6 @@ public class StorageService : IStorageService
 
     public async Task<string> GetPresignedUrlAsync(string objectKey, int expirationMinutes = 15)
     {
-        // await EnsureBucketExistsAsync(); // Optional: Check lazily if needed, but Presigned URL generation is offline if not verifying bucket
         try
         {
             var args = new PresignedGetObjectArgs()
@@ -74,7 +75,6 @@ public class StorageService : IStorageService
 
     public async Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType)
     {
-        await EnsureBucketExistsAsync();
         try
         {
             var objectKey = $"{DateTime.UtcNow:yyyy/MM/dd}/{Guid.NewGuid()}/{fileName}";

@@ -1,31 +1,49 @@
-using HazardEye.API.Models;
+using System.Text.Json.Serialization;
 
 namespace HazardEye.API.DTOs;
 
 public class CreateWorkTaskDto
 {
-    public int? IncidentId { get; set; }
+    [JsonPropertyName("incidentId")]
+    public int IncidentId { get; set; }
+    [JsonPropertyName("assignedToUserId")]
     public int AssignedToUserId { get; set; }
+    [JsonPropertyName("description")]
     public string Description { get; set; } = string.Empty;
+    [JsonPropertyName("dueDate")]
     public DateTime? DueDate { get; set; }
-    public int? PlantLocationId { get; set; }
-    public int? AreaLocationId { get; set; }
+    [JsonPropertyName("area")]
+    public string? Area { get; set; }
+    [JsonPropertyName("plant")]
+    public string? Plant { get; set; }
+    [JsonPropertyName("comments")]
+    public string? Comments { get; set; }
 }
 
 public class WorkTaskDto
 {
+    [JsonPropertyName("id")]
     public int Id { get; set; }
-    public int? IncidentId { get; set; }
+    [JsonPropertyName("incidentId")]
+    public int IncidentId { get; set; }
+    [JsonPropertyName("assignedToUserId")]
     public int AssignedToUserId { get; set; }
+    [JsonPropertyName("assignedToName")]
     public string AssignedToName { get; set; } = string.Empty;
+    [JsonPropertyName("description")]
     public string Description { get; set; } = string.Empty;
+    [JsonPropertyName("status")]
     public string Status { get; set; } = string.Empty;
+    [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; set; }
+    [JsonPropertyName("dueDate")]
     public DateTime? DueDate { get; set; }
+    [JsonPropertyName("completedAt")]
     public DateTime? CompletedAt { get; set; }
-    public string Comments { get; set; } = "[]";
-    public int? PlantLocationId { get; set; }
-    public string? PlantLocationName { get; set; }
-    public int? AreaLocationId { get; set; }
-    public string? AreaLocationName { get; set; }
+    [JsonPropertyName("area")]
+    public string? Area { get; set; }
+    [JsonPropertyName("plant")]
+    public string? Plant { get; set; }
+    [JsonPropertyName("comments")]
+    public string? Comments { get; set; }
 }

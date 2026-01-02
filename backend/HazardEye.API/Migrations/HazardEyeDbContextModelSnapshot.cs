@@ -61,6 +61,33 @@ namespace HazardEye.API.Migrations
                     b.ToTable("AdvisoryTemplates");
                 });
 
+            modelBuilder.Entity("HazardEye.API.Models.AppRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
             modelBuilder.Entity("HazardEye.API.Models.ApprovalRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -191,6 +218,33 @@ namespace HazardEye.API.Migrations
                     b.ToTable("CorrectiveAction");
                 });
 
+            modelBuilder.Entity("HazardEye.API.Models.Department", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Departments");
+                });
+
             modelBuilder.Entity("HazardEye.API.Models.Device", b =>
                 {
                     b.Property<int>("Id")
@@ -249,9 +303,6 @@ namespace HazardEye.API.Migrations
                     b.Property<string>("Area")
                         .HasColumnType("text");
 
-                    b.Property<int?>("AreaLocationId")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("AssignedTo")
                         .HasColumnType("integer");
 
@@ -292,9 +343,6 @@ namespace HazardEye.API.Migrations
                     b.Property<string>("Plant")
                         .HasColumnType("text");
 
-                    b.Property<int?>("PlantLocationId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("ResolvedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -312,8 +360,6 @@ namespace HazardEye.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AreaLocationId");
-
                     b.HasIndex("AssignedTo");
 
                     b.HasIndex("CapturedAt");
@@ -321,8 +367,6 @@ namespace HazardEye.API.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("DeviceId");
-
-                    b.HasIndex("PlantLocationId");
 
                     b.HasIndex("ServerIncidentId")
                         .IsUnique();
@@ -561,15 +605,8 @@ namespace HazardEye.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AreaLocationId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("AssignedToUserId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Comments")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
@@ -584,10 +621,7 @@ namespace HazardEye.API.Migrations
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("IncidentId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("PlantLocationId")
+                    b.Property<int>("IncidentId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Status")
@@ -596,13 +630,9 @@ namespace HazardEye.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AreaLocationId");
-
                     b.HasIndex("AssignedToUserId");
 
                     b.HasIndex("IncidentId");
-
-                    b.HasIndex("PlantLocationId");
 
                     b.HasIndex("Status");
 
@@ -629,11 +659,6 @@ namespace HazardEye.API.Migrations
 
             modelBuilder.Entity("HazardEye.API.Models.Incident", b =>
                 {
-                    b.HasOne("HazardEye.API.Models.Location", "AreaLocation")
-                        .WithMany()
-                        .HasForeignKey("AreaLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("HazardEye.API.Models.User", "AssignedToUser")
                         .WithMany()
                         .HasForeignKey("AssignedTo")
@@ -645,18 +670,9 @@ namespace HazardEye.API.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("HazardEye.API.Models.Location", "PlantLocation")
-                        .WithMany()
-                        .HasForeignKey("PlantLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("AreaLocation");
-
                     b.Navigation("AssignedToUser");
 
                     b.Navigation("CreatedByUser");
-
-                    b.Navigation("PlantLocation");
                 });
 
             modelBuilder.Entity("HazardEye.API.Models.IncidentComment", b =>
@@ -688,11 +704,6 @@ namespace HazardEye.API.Migrations
 
             modelBuilder.Entity("HazardEye.API.Models.WorkTask", b =>
                 {
-                    b.HasOne("HazardEye.API.Models.Location", "AreaLocation")
-                        .WithMany()
-                        .HasForeignKey("AreaLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("HazardEye.API.Models.User", "AssignedToUser")
                         .WithMany()
                         .HasForeignKey("AssignedToUserId")
@@ -702,20 +713,12 @@ namespace HazardEye.API.Migrations
                     b.HasOne("HazardEye.API.Models.Incident", "Incident")
                         .WithMany()
                         .HasForeignKey("IncidentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("HazardEye.API.Models.Location", "PlantLocation")
-                        .WithMany()
-                        .HasForeignKey("PlantLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("AreaLocation");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AssignedToUser");
 
                     b.Navigation("Incident");
-
-                    b.Navigation("PlantLocation");
                 });
 
             modelBuilder.Entity("HazardEye.API.Models.Incident", b =>

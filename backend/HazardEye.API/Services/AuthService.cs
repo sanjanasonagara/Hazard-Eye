@@ -7,7 +7,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Serilog;
 
 namespace HazardEye.API.Services;
 
@@ -46,7 +45,12 @@ public class AuthService : IAuthService
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Role = user.Role.ToString()
+                Role = user.Role.ToString(),
+                IsActive = user.IsActive,
+                EmployeeId = user.EmployeeId,
+                Phone = user.Phone,
+                Company = user.Company,
+                SupervisorDepartmentIds = user.SupervisorDepartmentIds
             }
         };
     }
@@ -63,20 +67,17 @@ public class AuthService : IAuthService
             FirstName = user.FirstName,
             LastName = user.LastName,
             Role = user.Role.ToString(),
+            IsActive = user.IsActive,
             EmployeeId = user.EmployeeId,
             Phone = user.Phone,
             Company = user.Company,
-            IsActive = user.IsActive,
-            SupervisorDepartmentIds = user.SupervisorDepartmentIds,
-            SupervisorDepartments = MapDepartmentIdsToNames(user.SupervisorDepartmentIds),
-            CreatedAt = user.CreatedAt,
-            LastLoginAt = user.LastLoginAt
+            SupervisorDepartmentIds = user.SupervisorDepartmentIds
         };
     }
 
     public async Task<List<UserDto>> GetAllUsersAsync()
     {
-        var users = await _context.Users
+        return await _context.Users
             .Select(u => new UserDto
             {
                 Id = u.Id,
@@ -84,22 +85,13 @@ public class AuthService : IAuthService
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Role = u.Role.ToString(),
+                IsActive = u.IsActive,
                 EmployeeId = u.EmployeeId,
                 Phone = u.Phone,
                 Company = u.Company,
-                IsActive = u.IsActive,
-                SupervisorDepartmentIds = u.SupervisorDepartmentIds,
-                // Cannot call method in Linq to Entities usually, so we fetch then map or ignore for list?
-                // For simplified implementation, we'll assign empty here or fetch all then map.
-                // Better: Materialize list then map.
-                CreatedAt = u.CreatedAt,
-                LastLoginAt = u.LastLoginAt
+                SupervisorDepartmentIds = u.SupervisorDepartmentIds
             })
             .ToListAsync();
-
-        // Post-processing to map department names
-        users.ForEach(u => u.SupervisorDepartments = MapDepartmentIdsToNames(u.SupervisorDepartmentIds));
-        return users;
     }
 
     public async Task<bool> DeleteUserAsync(int id)
@@ -120,16 +112,9 @@ public class AuthService : IAuthService
             return null; // Already exists
         }
 
-        Serilog.Log.Information($"[CreateUser] Received Role: '{request.Role}'");
         if (!Enum.TryParse<UserRole>(request.Role, true, out var role))
         {
-            Serilog.Log.Error($"[CreateUser] Failed to parse role '{request.Role}', defaulting to Viewer.");
-            // Default or throw? Let's assume validation happens in Controller or default to Viewer
-            role = UserRole.Viewer; 
-        }
-        else
-        {
-            Serilog.Log.Information($"[CreateUser] Parsed role as: {role}");
+            throw new InvalidOperationException($"Invalid user role provided: '{request.Role}'. Supported roles are: {string.Join(", ", Enum.GetNames(typeof(UserRole)))}");
         }
 
         var newUser = new User
@@ -139,11 +124,12 @@ public class AuthService : IAuthService
             FirstName = request.FirstName,
             LastName = request.LastName,
             Role = role,
-            IsActive = true,
+            IsActive = request.IsActive,
             CreatedAt = DateTime.UtcNow,
             EmployeeId = request.EmployeeId,
             Phone = request.Phone,
             Company = request.Company,
+            SupervisorDepartmentIds = request.SupervisorDepartmentIds ?? new()
         };
 
         _context.Users.Add(newUser);
@@ -156,14 +142,11 @@ public class AuthService : IAuthService
             FirstName = newUser.FirstName,
             LastName = newUser.LastName,
             Role = newUser.Role.ToString(),
+            IsActive = newUser.IsActive,
             EmployeeId = newUser.EmployeeId,
             Phone = newUser.Phone,
             Company = newUser.Company,
-            IsActive = newUser.IsActive,
-            SupervisorDepartmentIds = newUser.SupervisorDepartmentIds,
-            SupervisorDepartments = MapDepartmentIdsToNames(newUser.SupervisorDepartmentIds),
-            CreatedAt = newUser.CreatedAt,
-            LastLoginAt = newUser.LastLoginAt
+            SupervisorDepartmentIds = newUser.SupervisorDepartmentIds
         };
     }
 
@@ -178,19 +161,10 @@ public class AuthService : IAuthService
         if (request.Phone != null) user.Phone = request.Phone;
         if (request.Company != null) user.Company = request.Company;
         if (request.IsActive.HasValue) user.IsActive = request.IsActive.Value;
-        
-        if (request.Role != null)
+
+        if (request.Role != null && Enum.TryParse<UserRole>(request.Role, true, out var role))
         {
-             Console.WriteLine($"[UpdateUser] Updating Role to: '{request.Role}'");
-             if (Enum.TryParse<UserRole>(request.Role, true, out var role))
-             {
-                 user.Role = role;
-                 Console.WriteLine($"[UpdateUser] Role updated to: {role}");
-             }
-             else
-             {
-                 Console.WriteLine($"[UpdateUser] Failed to parse role '{request.Role}'");
-             }
+            user.Role = role;
         }
 
         if (request.SupervisorDepartmentIds != null)
@@ -211,26 +185,8 @@ public class AuthService : IAuthService
             Phone = user.Phone,
             Company = user.Company,
             IsActive = user.IsActive,
-            SupervisorDepartmentIds = user.SupervisorDepartmentIds,
-            SupervisorDepartments = MapDepartmentIdsToNames(user.SupervisorDepartmentIds),
-            CreatedAt = user.CreatedAt,
-            LastLoginAt = user.LastLoginAt
+            SupervisorDepartmentIds = user.SupervisorDepartmentIds
         };
-    }
-
-    private List<string> MapDepartmentIdsToNames(List<int> ids)
-    {
-        // Mock implementation until we have a real Departments table/service
-        var names = new List<string>();
-        foreach(var id in ids)
-        {
-            if(id == 1) names.Add("Operations");
-            else if(id == 2) names.Add("Safety");
-            else if(id == 3) names.Add("Maintenance");
-            else if(id == 4) names.Add("Logistics");
-            else names.Add($"Dept-{id}");
-        }
-        return names;
     }
 
     private string GenerateJwtToken(User user)
