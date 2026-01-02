@@ -9,5 +9,6 @@ public interface IAuthService
     Task<List<UserDto>> GetAllUsersAsync();
     Task<bool> DeleteUserAsync(int id);
     Task<UserDto?> CreateUserAsync(CreateUserDto request);
+    Task<UserDto?> UpdateUserAsync(int id, UpdateUserDto request);
 }
 

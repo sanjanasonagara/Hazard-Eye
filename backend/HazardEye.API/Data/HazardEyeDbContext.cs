@@ -18,6 +18,9 @@ public class HazardEyeDbContext : DbContext
     public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
 
     public DbSet<HazardEye.API.Models.WorkTask> Tasks { get; set; }
+    public DbSet<Location> Locations { get; set; }
+    public DbSet<Department> Departments { get; set; }
+    public DbSet<AppRole> Roles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,6 +56,14 @@ public class HazardEyeDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(e => e.CreatedBy)
                   .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.PlantLocation)
+                  .WithMany()
+                  .HasForeignKey(e => e.PlantLocationId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.AreaLocation)
+                  .WithMany()
+                  .HasForeignKey(e => e.AreaLocationId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
 
         // Task configuration
@@ -68,6 +79,14 @@ public class HazardEyeDbContext : DbContext
             entity.HasOne(e => e.AssignedToUser)
                   .WithMany()
                   .HasForeignKey(e => e.AssignedToUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.PlantLocation)
+                  .WithMany()
+                  .HasForeignKey(e => e.PlantLocationId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.AreaLocation)
+                  .WithMany()
+                  .HasForeignKey(e => e.AreaLocationId)
                   .OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -110,6 +129,17 @@ public class HazardEyeDbContext : DbContext
             entity.HasIndex(e => e.UserId);
             entity.HasIndex(e => e.Action);
             entity.Property(e => e.Details).HasColumnType("jsonb");
+        });
+
+        // Location configuration (Self-referencing hierarchy)
+        modelBuilder.Entity<Location>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Type).HasConversion<string>();
+            entity.HasOne(e => e.Parent)
+                  .WithMany(e => e.Children)
+                  .HasForeignKey(e => e.ParentId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
 
         // Approval Request configuration

@@ -27,7 +27,7 @@ public class IncidentsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Policy = "SafetyOfficerOrAdmin")]
+    [Authorize(Roles = "SafetyOfficer,Admin,Supervisor,Worker")]
     public async Task<ActionResult<IncidentListResponse>> GetIncidents([FromQuery] IncidentFilterRequest filter)
     {
         var response = await _incidentService.GetIncidentsAsync(filter);
@@ -35,7 +35,7 @@ public class IncidentsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Policy = "SafetyOfficerOrAdmin")]
+    [Authorize(Roles = "SafetyOfficer,Admin,Supervisor,Worker")]
     public async Task<ActionResult<IncidentDto>> GetIncident(int id)
     {
         var incident = await _incidentService.GetIncidentByIdAsync(id);
@@ -90,7 +90,7 @@ public class IncidentsController : ControllerBase
     }
 
     [HttpGet("{id}/media/{mediaIndex}/url")]
-    [Authorize(Policy = "SafetyOfficerOrAdmin")]
+    [Authorize(Roles = "SafetyOfficer,Admin,Supervisor,Worker")]
     public async Task<ActionResult<string>> GetMediaUrl(int id, int mediaIndex, [FromQuery] int expirationMinutes = 15)
     {
         var incident = await _incidentService.GetIncidentByIdAsync(id);

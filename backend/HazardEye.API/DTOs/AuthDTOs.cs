@@ -19,6 +19,14 @@ public class UserDto
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
+    public string? EmployeeId { get; set; }
+    public string? Phone { get; set; }
+    public string? Company { get; set; }
+    public bool IsActive { get; set; }
+    public List<int> SupervisorDepartmentIds { get; set; } = new();
+    public List<string> SupervisorDepartments { get; set; } = new();
+    public DateTime? LastLoginAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 }
 
 

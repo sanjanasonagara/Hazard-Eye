@@ -2,7 +2,9 @@ using HazardEye.API.Data;
 using HazardEye.API.DTOs;
 using HazardEye.API.Models;
 using Microsoft.EntityFrameworkCore;
+using HazardEye.API.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using System.Text.Json;
 
 namespace HazardEye.API.Services;
 
@@ -41,13 +43,47 @@ public class IncidentService : IIncidentService
             MediaUris = request.MediaUris,
             MlMetadata = request.MlMetadata,
             CreatedBy = createdBy,
-            Status = IncidentStatus.Pending
+            Status = IncidentStatus.Pending,
+            PlantLocationId = request.PlantLocationId,
+            AreaLocationId = request.AreaLocationId
         };
 
         // Apply severity rules
-        incident.Severity = await _advisoryService.DetermineSeverityAsync(request.MlMetadata);
-        incident.Category = await _advisoryService.DetermineCategoryAsync(request.MlMetadata);
-        incident.Advisory = await _advisoryService.GenerateAdvisoryAsync(request.MlMetadata, incident.Severity);
+        // Apply severity rules (Use request value if provided - e.g. from Sync)
+        if (!string.IsNullOrEmpty(request.Severity) && Enum.TryParse<IncidentSeverity>(request.Severity, out var parsedSeverity))
+        {
+            incident.Severity = parsedSeverity;
+        }
+        else
+        {
+            incident.Severity = await _advisoryService.DetermineSeverityAsync(request.MlMetadata);
+        }
+
+        // Apply Category (Use request value if provided)
+        if (!string.IsNullOrEmpty(request.Category) && Enum.TryParse<IncidentCategory>(request.Category, true, out var parsedCategory))
+        {
+            incident.Category = parsedCategory;
+        }
+        else
+        {
+             incident.Category = await _advisoryService.DetermineCategoryAsync(request.MlMetadata);
+        }
+
+        // Apply Advisory
+        if (!string.IsNullOrEmpty(request.Advisory))
+        {
+            incident.Advisory = request.Advisory;
+        }
+        else
+        {
+            incident.Advisory = await _advisoryService.GenerateAdvisoryAsync(request.MlMetadata, incident.Severity);
+        }
+
+        // Apply Manual Fields
+        incident.Note = request.Note;
+        
+        if (!string.IsNullOrEmpty(request.Plant)) incident.Plant = request.Plant;
+        if (!string.IsNullOrEmpty(request.Area)) incident.Area = request.Area;
 
         _context.Incidents.Add(incident);
         await _context.SaveChangesAsync();
@@ -60,7 +96,10 @@ public class IncidentService : IIncidentService
 
         var dto = await GetIncidentByIdAsync(incident.Id);
         if (dto == null) dto = await MapToDtoAsync(incident); // Fallback
+        
+        // Broadcast Real-time Event
         await _hubContext.Clients.All.SendAsync("IncidentCreated", dto);
+        
         return dto;
     }
 
@@ -69,6 +108,8 @@ public class IncidentService : IIncidentService
         var query = _context.Incidents
             .Include(i => i.AssignedToUser)
             .Include(i => i.CreatedByUser)
+            .Include(i => i.PlantLocation)
+            .Include(i => i.AreaLocation)
             .AsQueryable();
 
         if (filter.StartDate.HasValue)
@@ -122,6 +163,8 @@ public class IncidentService : IIncidentService
         var incident = await _context.Incidents
             .Include(i => i.AssignedToUser)
             .Include(i => i.CreatedByUser)
+            .Include(i => i.PlantLocation)
+            .Include(i => i.AreaLocation)
             .Include(i => i.Comments)
                 .ThenInclude(c => c.User)
             .FirstOrDefaultAsync(i => i.Id == id);
@@ -158,6 +201,9 @@ public class IncidentService : IIncidentService
 
         if (incident.Status == IncidentStatus.Closed && !incident.ClosedAt.HasValue)
             incident.ClosedAt = DateTime.UtcNow;
+
+        if (request.PlantLocationId.HasValue) incident.PlantLocationId = request.PlantLocationId;
+        if (request.AreaLocationId.HasValue) incident.AreaLocationId = request.AreaLocationId;
 
         await _context.SaveChangesAsync();
 
@@ -278,6 +324,12 @@ public class IncidentService : IIncidentService
             MlMetadata = incident.MlMetadata,
             Advisory = incident.Advisory,
             Note = incident.Note,
+            Plant = incident.Plant,
+            Area = incident.Area,
+            PlantLocationId = incident.PlantLocationId,
+            PlantLocationName = incident.PlantLocation?.Name,
+            AreaLocationId = incident.AreaLocationId,
+            AreaLocationName = incident.AreaLocation?.Name,
             CreatedAt = incident.CreatedAt,
             ResolvedAt = incident.ResolvedAt,
             ClosedAt = incident.ClosedAt

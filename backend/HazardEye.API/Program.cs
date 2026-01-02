@@ -105,7 +105,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("SafetyOfficerOrAdmin", policy => policy.RequireRole("SafetyOfficer", "Admin"));
+    options.AddPolicy("SafetyOfficerOrAdmin", policy => policy.RequireRole("SafetyOfficer", "Admin", "Supervisor"));
     options.AddPolicy("AuditorOrAdmin", policy => policy.RequireRole("Auditor", "Admin"));
 });
 
@@ -150,6 +150,7 @@ if (app.Environment.IsDevelopment())
 
 // app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
+app.UseStaticFiles(); // Enable static files for uploads
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -185,3 +186,6 @@ using (var scope = app.Services.CreateScope())
 app.Run();
 
 
+
+
+// Trigger restart for Controller Updates

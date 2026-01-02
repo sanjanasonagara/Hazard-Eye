@@ -46,6 +46,16 @@ public class Incident
     public string? Note { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ResolvedAt { get; set; }
+    
+    // Location Details
+    public int? PlantLocationId { get; set; }
+    public Location? PlantLocation { get; set; }
+
+    public int? AreaLocationId { get; set; }
+    public Location? AreaLocation { get; set; }
+
+    public string? Plant { get; set; } // Deprecated
+    public string? Area { get; set; }  // Deprecated
     public DateTime? ClosedAt { get; set; }
     public List<IncidentComment> Comments { get; set; } = new();
     public List<CorrectiveAction> CorrectiveActions { get; set; } = new();

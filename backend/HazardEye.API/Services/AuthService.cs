@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Serilog;
 
 namespace HazardEye.API.Services;
 
@@ -61,22 +62,44 @@ public class AuthService : IAuthService
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Role = user.Role.ToString()
+            Role = user.Role.ToString(),
+            EmployeeId = user.EmployeeId,
+            Phone = user.Phone,
+            Company = user.Company,
+            IsActive = user.IsActive,
+            SupervisorDepartmentIds = user.SupervisorDepartmentIds,
+            SupervisorDepartments = MapDepartmentIdsToNames(user.SupervisorDepartmentIds),
+            CreatedAt = user.CreatedAt,
+            LastLoginAt = user.LastLoginAt
         };
     }
 
     public async Task<List<UserDto>> GetAllUsersAsync()
     {
-        return await _context.Users
+        var users = await _context.Users
             .Select(u => new UserDto
             {
                 Id = u.Id,
                 Email = u.Email,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
-                Role = u.Role.ToString()
+                Role = u.Role.ToString(),
+                EmployeeId = u.EmployeeId,
+                Phone = u.Phone,
+                Company = u.Company,
+                IsActive = u.IsActive,
+                SupervisorDepartmentIds = u.SupervisorDepartmentIds,
+                // Cannot call method in Linq to Entities usually, so we fetch then map or ignore for list?
+                // For simplified implementation, we'll assign empty here or fetch all then map.
+                // Better: Materialize list then map.
+                CreatedAt = u.CreatedAt,
+                LastLoginAt = u.LastLoginAt
             })
             .ToListAsync();
+
+        // Post-processing to map department names
+        users.ForEach(u => u.SupervisorDepartments = MapDepartmentIdsToNames(u.SupervisorDepartmentIds));
+        return users;
     }
 
     public async Task<bool> DeleteUserAsync(int id)
@@ -97,10 +120,16 @@ public class AuthService : IAuthService
             return null; // Already exists
         }
 
+        Serilog.Log.Information($"[CreateUser] Received Role: '{request.Role}'");
         if (!Enum.TryParse<UserRole>(request.Role, true, out var role))
         {
+            Serilog.Log.Error($"[CreateUser] Failed to parse role '{request.Role}', defaulting to Viewer.");
             // Default or throw? Let's assume validation happens in Controller or default to Viewer
             role = UserRole.Viewer; 
+        }
+        else
+        {
+            Serilog.Log.Information($"[CreateUser] Parsed role as: {role}");
         }
 
         var newUser = new User
@@ -111,7 +140,10 @@ public class AuthService : IAuthService
             LastName = request.LastName,
             Role = role,
             IsActive = true,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            EmployeeId = request.EmployeeId,
+            Phone = request.Phone,
+            Company = request.Company,
         };
 
         _context.Users.Add(newUser);
@@ -123,8 +155,82 @@ public class AuthService : IAuthService
             Email = newUser.Email,
             FirstName = newUser.FirstName,
             LastName = newUser.LastName,
-            Role = newUser.Role.ToString()
+            Role = newUser.Role.ToString(),
+            EmployeeId = newUser.EmployeeId,
+            Phone = newUser.Phone,
+            Company = newUser.Company,
+            IsActive = newUser.IsActive,
+            SupervisorDepartmentIds = newUser.SupervisorDepartmentIds,
+            SupervisorDepartments = MapDepartmentIdsToNames(newUser.SupervisorDepartmentIds),
+            CreatedAt = newUser.CreatedAt,
+            LastLoginAt = newUser.LastLoginAt
         };
+    }
+
+    public async Task<UserDto?> UpdateUserAsync(int id, UpdateUserDto request)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null) return null;
+
+        if (request.FirstName != null) user.FirstName = request.FirstName;
+        if (request.LastName != null) user.LastName = request.LastName;
+        if (request.EmployeeId != null) user.EmployeeId = request.EmployeeId;
+        if (request.Phone != null) user.Phone = request.Phone;
+        if (request.Company != null) user.Company = request.Company;
+        if (request.IsActive.HasValue) user.IsActive = request.IsActive.Value;
+        
+        if (request.Role != null)
+        {
+             Console.WriteLine($"[UpdateUser] Updating Role to: '{request.Role}'");
+             if (Enum.TryParse<UserRole>(request.Role, true, out var role))
+             {
+                 user.Role = role;
+                 Console.WriteLine($"[UpdateUser] Role updated to: {role}");
+             }
+             else
+             {
+                 Console.WriteLine($"[UpdateUser] Failed to parse role '{request.Role}'");
+             }
+        }
+
+        if (request.SupervisorDepartmentIds != null)
+        {
+            user.SupervisorDepartmentIds = request.SupervisorDepartmentIds;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return new UserDto
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Role = user.Role.ToString(),
+            EmployeeId = user.EmployeeId,
+            Phone = user.Phone,
+            Company = user.Company,
+            IsActive = user.IsActive,
+            SupervisorDepartmentIds = user.SupervisorDepartmentIds,
+            SupervisorDepartments = MapDepartmentIdsToNames(user.SupervisorDepartmentIds),
+            CreatedAt = user.CreatedAt,
+            LastLoginAt = user.LastLoginAt
+        };
+    }
+
+    private List<string> MapDepartmentIdsToNames(List<int> ids)
+    {
+        // Mock implementation until we have a real Departments table/service
+        var names = new List<string>();
+        foreach(var id in ids)
+        {
+            if(id == 1) names.Add("Operations");
+            else if(id == 2) names.Add("Safety");
+            else if(id == 3) names.Add("Maintenance");
+            else if(id == 4) names.Add("Logistics");
+            else names.Add($"Dept-{id}");
+        }
+        return names;
     }
 
     private string GenerateJwtToken(User user)

@@ -19,4 +19,8 @@ public class CreateUserDto
 
     [Required]
     public string Role { get; set; } = string.Empty; // "Admin", "SafetyOfficer", "Auditor", "Viewer"
+
+    public string? EmployeeId { get; set; }
+    public string? Phone { get; set; }
+    public string? Company { get; set; }
 }

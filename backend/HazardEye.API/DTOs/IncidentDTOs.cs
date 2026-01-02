@@ -12,6 +12,12 @@ public class IncidentDto
     public string Status { get; set; } = string.Empty;
     public int? AssignedTo { get; set; }
     public string? AssignedToName { get; set; }
+    public string? Plant { get; set; }
+    public string? Area { get; set; }
+    public int? PlantLocationId { get; set; }
+    public string? PlantLocationName { get; set; }
+    public int? AreaLocationId { get; set; }
+    public string? AreaLocationName { get; set; }
     public int CreatedBy { get; set; }
     public string CreatedByName { get; set; } = string.Empty;
     public List<string> MediaUris { get; set; } = new();
@@ -32,6 +38,16 @@ public class CreateIncidentRequest
     public DateTime CapturedAt { get; set; }
     public List<string> MediaUris { get; set; } = new();
     public Dictionary<string, object> MlMetadata { get; set; } = new();
+    
+    // Added fields for sync
+    public string? Severity { get; set; }
+    public string? Note { get; set; }
+    public string? Category { get; set; }
+    public string? Plant { get; set; }
+    public string? Area { get; set; }
+    public int? PlantLocationId { get; set; }
+    public int? AreaLocationId { get; set; }
+    public string? Advisory { get; set; }
 }
 
 public class UpdateIncidentRequest
@@ -41,6 +57,8 @@ public class UpdateIncidentRequest
     public int? AssignedTo { get; set; }
     public string? Note { get; set; }
     public string? Advisory { get; set; }
+    public int? PlantLocationId { get; set; }
+    public int? AreaLocationId { get; set; }
 }
 
 public class IncidentFilterRequest
