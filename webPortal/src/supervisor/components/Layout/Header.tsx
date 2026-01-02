@@ -24,17 +24,16 @@ export const Header: React.FC = () => {
 
   React.useEffect(() => {
     fetchApi<any>('/users/me')
-      .then(data => {
-        const role = data.role?.toLowerCase();
+      .then(user => {
+        const role = user.role?.toLowerCase();
         const isAdmin = role === 'admin' || role === 'systemadmin';
         const isSupervisor = role === 'supervisor' || role === 'safetyofficer';
         
         setRealRole({ isAdmin, isSupervisor });
-        
+
         // If user is NEITHER Supervisor NOR Admin, but is on Supervisor Page, kick them out.
         if (!isSupervisor && !isAdmin) {
           console.warn("User access revoked. Redirecting to Employee Dashboard.");
-          // Optional: Update local state role if needed, but navigation is enough
           navigate('/employee');
         }
       })

@@ -6,8 +6,6 @@ export interface Location {
     active: boolean;
     quadrant?: 'NE' | 'NW' | 'SE' | 'SW';
     description?: string;
-    type?: 'Plant' | 'Unit' | 'Area' | 'Other';
-    parentLocationId?: string;
-    parentLocationName?: string;
+    type?: string;
     polygonCoordinates?: [number, number][];
 }

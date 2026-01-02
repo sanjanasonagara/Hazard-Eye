@@ -2,7 +2,6 @@ import { fetchApi } from './api';
 import { Incident } from '../../supervisor/types';
 
 // Matching backend DTO
-// Matching backend DTO
 export interface IncidentDto {
     id: number;
     serverIncidentId: string;
@@ -20,17 +19,13 @@ export interface IncidentDto {
     mlMetadata: Record<string, any>;
     advisory?: string;
     note?: string;
+    area?: string;
+    plant?: string;
     createdAt: string;
     resolvedAt?: string;
     closedAt?: string;
     comments: any[];
     correctiveActions: any[];
-    plant?: string;
-    area?: string;
-    plantLocationId?: number;
-    plantLocationName?: string;
-    areaLocationId?: number;
-    areaLocationName?: string;
 }
 
 export interface IncidentListResponse {
@@ -62,14 +57,16 @@ export const incidentService = {
         }
     },
 
-    updateIncident: async (id: string, updates: Partial<Incident>): Promise<void> => {
-        // Backend expects PUT /api/incidents/{id} likely with full object or patch
-        // Given structure, we might need to send DTO.
-        // Assuming there's a PUT endpoint.
-        await fetchApi(`/incidents/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(updates)
-        });
+    updateIncidentStatus: async (id: string, status: string): Promise<void> => {
+        try {
+            await fetchApi(`/incidents/${id}/status`, {
+                method: 'PATCH',
+                body: JSON.stringify({ status })
+            });
+        } catch (error) {
+            console.error(`Failed to update incident ${id} status:`, error);
+            throw error;
+        }
     }
 };
 
@@ -77,26 +74,13 @@ export const incidentService = {
 const mapDtoToIncident = (dto: IncidentDto): Incident => {
     return {
         id: dto.id.toString(),
-        // Use the first media URI if available, otherwise placeholder. 
-        // Note: Backend might return relative paths or full URLs. 
-        // If it returns full URL (which it does now for uploads), use it directly.
-        imageUrl: dto.mediaUris && dto.mediaUris.length > 0 ? dto.mediaUris[0] : 'https://via.placeholder.com/150',
-        dateTime: new Date(dto.capturedAt),
-        area: dto.areaLocationName || dto.area || '',
-        plant: dto.plantLocationName || dto.plant || '',
-        plantLocationId: dto.plantLocationId,
-        areaLocationId: dto.areaLocationId,
-        department: mapCategoryToDepartment(dto.category), // Map category to department
+        imageUrl: dto.mediaUris && dto.mediaUris.length > 0 ? dto.mediaUris[0] : 'https://via.placeholder.com/150?text=No+Image',
+        dateTime: new Date(dto.capturedAt || dto.createdAt),
+        area: dto.area || 'Field Area',
+        plant: dto.plant || 'Main Plant',
+        department: (dto.category as any) || 'General',
         severity: (dto.severity as any) || 'Low',
         status: (dto.status as any) || 'Open',
-        description: dto.note || dto.category || `Incident detected by ${dto.deviceId}`,
-        advisory: dto.advisory,
+        description: dto.note || dto.advisory || 'No description provided',
     };
-};
-
-const mapCategoryToDepartment = (category: string): any => {
-    if (category?.includes('Fire') || category?.includes('Smoke')) return 'Fire & Safety';
-    if (category?.includes('Equip') || category?.includes('Machine')) return 'Mechanical';
-    if (category?.includes('Spill') || category?.includes('Leak')) return 'Environmental';
-    return 'General';
 };

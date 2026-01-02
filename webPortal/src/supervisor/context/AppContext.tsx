@@ -13,8 +13,7 @@ import {
 
 import { incidentService } from '../../shared/services/incidentService';
 import { taskService } from '../../shared/services/taskService';
-import { fetchApi } from '../../shared/services/api';
-import { signalRService } from '../../shared/services/signalrService';
+import { userService, UserDto } from '../../shared/services/userService';
 import { useEffect } from 'react';
 
 interface AppContextType {
@@ -32,6 +31,7 @@ interface AppContextType {
   ) => void;
   getFilteredIncidents: () => Incident[];
   getFilteredTasks: () => Task[];
+  updateIncident: (incidentId: string, updates: Partial<Incident>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -54,7 +54,7 @@ const initialFilters: FilterState = {
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [users, setUsers] = useState<User[]>([]); // mockUsers removed
+  const [users, setUsers] = useState<User[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]); // Initial empty tasks until incidents load
 
   // Initialize from localStorage if available
@@ -70,17 +70,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           id: String(parsed.id),
           name: parsed.firstName && parsed.lastName ? `${parsed.firstName} ${parsed.lastName}` : parsed.name || 'Unknown',
           email: parsed.email,
-          role: ((parsed.role?.toLowerCase() === 'safetyofficer' || parsed.role?.toLowerCase() === 'supervisor') ? 'supervisor' : 'employee') as UserRole,
+          role: (['admin', 'systemadmin', 'supervisor', 'safetyofficer'].includes(parsed.role?.toLowerCase()) ? 'supervisor' : 'employee') as UserRole,
           department: (parsed.company || parsed.department || 'General') as any, // Cast to any to bypass strict enum for now
           avatar: `https://i.pravatar.cc/150?u=${parsed.id}`
         };
-        console.log('AppContext: Initialized user state:', user);
+        console.log('AppContext: Parsed user:', user);
         return user as User;
       }
     } catch (e) {
-      console.error("AppContext: Failed to parse user from local storage", e);
+      console.error("Failed to parse user from local storage", e);
     }
-    console.warn('AppContext: No valid user found in localStorage, defaulting to employee');
+    // Default to empty/null user or force redirect in UI if checking this
+    console.log('AppContext: defaulting to empty user');
     return {
       id: '',
       name: '',
@@ -93,137 +94,37 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const [filters, setFilters] = useState<FilterState>(initialFilters);
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch data independently so one failure doesn't block others
-        const incidentsPromise = incidentService.getIncidents().catch(err => {
-            console.error("Failed to load incidents", err);
-            return [];
-        });
-        const tasksPromise = taskService.getTasks().catch(err => {
-            console.error("Failed to load tasks", err);
-            return [];
-        });
-        const usersPromise = fetchApi<User[]>('/users').catch(err => {
-             console.error("Failed to load users", err);
-             return [];
-        });
-
         const [incidentsData, tasksData, usersData] = await Promise.all([
-          incidentsPromise,
-          tasksPromise,
-          usersPromise
+          incidentService.getIncidents(),
+          taskService.getTasks(),
+          userService.getAllUsers()
         ]);
 
         setIncidents(incidentsData);
         setTasks(tasksData);
-        // Ensure usersData is an array before setting
-        const mappedUsers: User[] = Array.isArray(usersData) ? usersData.map((u: any) => ({
-          id: u.id.toString(),
+        
+        // Map backend users to frontend User type
+        const mappedUsers: User[] = usersData.map((u: UserDto) => ({
+          id: String(u.id),
           name: `${u.firstName} ${u.lastName}`,
           email: u.email,
-          role: u.role.toLowerCase() as UserRole,
-          department: u.company || 'General',
-          avatar: `https://i.pravatar.cc/150?u=${u.id}`,
-          employeeId: u.employeeId,
-        })) : [];
-
+          role: (['admin', 'systemadmin', 'supervisor', 'safetyofficer'].includes(u.role?.toLowerCase()) ? 'supervisor' : 'employee') as UserRole,
+          department: (u.company || 'General') as any,
+          avatar: `https://i.pravatar.cc/150?u=${u.id}`
+        }));
         setUsers(mappedUsers);
       } catch (error) {
         console.error("Failed to load data from API", error);
         // Fallback to empty
         setIncidents([]);
         setTasks([]);
-        setUsers([]); 
+        setUsers([]);
       }
     };
     fetchData();
-
-    // Start SignalR
-    const token = localStorage.getItem('token');
-    if (token) {
-        signalRService.startConnection(token);
-
-        const handleIncidentCreated = (newIncident: any) => {
-            console.log('SignalR: IncidentCreated', newIncident);
-            const mappedIncident = {
-                ...newIncident,
-                id: newIncident.id.toString(),
-                dateTime: new Date(newIncident.capturedAt || newIncident.capturedAt),
-                imageUrl: newIncident.mediaUris && newIncident.mediaUris.length > 0 ? newIncident.mediaUris[0] : 'https://via.placeholder.com/150',
-                status: newIncident.status || 'Open',
-                severity: newIncident.severity || 'Low'
-            };
-            setIncidents(prev => {
-                if (prev.some(i => i.id === mappedIncident.id)) return prev;
-                return [mappedIncident, ...prev];
-            });
-        };
-
-        const handleIncidentUpdated = (updatedIncident: any) => {
-            console.log('SignalR: IncidentUpdated', updatedIncident);
-            const mappedIncident = {
-                ...updatedIncident,
-                id: updatedIncident.id.toString(),
-                dateTime: new Date(updatedIncident.capturedAt),
-                imageUrl: updatedIncident.mediaUris && updatedIncident.mediaUris.length > 0 ? updatedIncident.mediaUris[0] : 'https://via.placeholder.com/150',
-            };
-            setIncidents(prev => prev.map(i => i.id === mappedIncident.id ? mappedIncident : i));
-        };
-
-        const handleTaskCreated = (newTask: any) => {
-             console.log('SignalR: TaskCreated', newTask);
-             const mappedTask = {
-                 ...newTask,
-                 id: newTask.id.toString(),
-                 incidentId: newTask.incidentId?.toString(),
-                 dueDate: newTask.dueDate ? new Date(newTask.dueDate) : new Date(),
-                 createdAt: newTask.createdAt ? new Date(newTask.createdAt) : new Date(),
-                 delayHistory: (newTask.delayHistory || []).map((h: any) => ({
-                    ...h,
-                    date: new Date(h.date)
-                 })),
-                 comments: (typeof newTask.comments === 'string' ? JSON.parse(newTask.comments) : (newTask.comments || [])).map((c: any) => ({
-                     ...c,
-                     timestamp: new Date(c.timestamp)
-                 }))
-             };
-             setTasks(prev => {
-                 if (prev.some(t => t.id === mappedTask.id)) return prev;
-                 return [mappedTask, ...prev];
-             });
-        };
-
-        const handleTaskUpdated = (updatedTask: any) => {
-             console.log('SignalR: TaskUpdated', updatedTask);
-             const task = {
-                 ...updatedTask,
-                 id: updatedTask.id.toString(),
-                 delayHistory: (updatedTask.delayHistory || []).map((h: any) => ({
-                    ...h,
-                    date: new Date(h.date)
-                 })),
-                 comments: (typeof updatedTask.comments === 'string' ? JSON.parse(updatedTask.comments) : (updatedTask.comments || [])).map((c: any) => ({
-                    ...c,
-                    timestamp: new Date(c.timestamp)
-                }))
-             };
-             setTasks(prev => prev.map(t => t.id === task.id ? task : t));
-        };
-
-        signalRService.on('IncidentCreated', handleIncidentCreated);
-        signalRService.on('IncidentUpdated', handleIncidentUpdated);
-        signalRService.on('TaskCreated', handleTaskCreated);
-        signalRService.on('TaskUpdated', handleTaskUpdated);
-
-        return () => {
-            signalRService.off('IncidentCreated', handleIncidentCreated);
-            signalRService.off('IncidentUpdated', handleIncidentUpdated);
-            signalRService.off('TaskCreated', handleTaskCreated);
-            signalRService.off('TaskUpdated', handleTaskUpdated);
-        };
-    }
   }, []);
 
   const switchRole = useCallback((role: UserRole) => {
@@ -239,19 +140,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const addTask = useCallback(async (taskData: Omit<Task, 'id' | 'createdAt' | 'comments'>) => {
     try {
-        const newTask = await taskService.createTask({
-            incidentId: taskData.incidentId ? parseInt(taskData.incidentId) : undefined, 
-            assignedToUserId: parseInt(taskData.assignedTo),
-            description: taskData.description,
-            dueDate: taskData.dueDate.toISOString()
-        });
-        setTasks(prev => {
-            if (prev.some(t => t.id === newTask.id)) return prev;
-            return [newTask, ...prev];
-        });
+      const createdTask = await taskService.createTask(taskData);
+      setTasks(prev => [...prev, createdTask]);
     } catch (error) {
-        console.error("Failed to create task", error);
-        // todo: show toast
+      console.error('Failed to save task to database:', error);
+      // Still add to local state if needed for offline feel, but ideally show error
+      const newTask: Task = {
+        ...taskData,
+        id: `task-${Date.now()}`,
+        createdAt: new Date(),
+        comments: [],
+      };
+      setTasks(prev => [...prev, newTask]);
     }
   }, []);
 
@@ -260,65 +160,74 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   const updateTaskStatus = useCallback(
-    async (taskId: string, status: TaskStatus, delayReason?: string, delayDate?: Date) => {
-      try {
-          await taskService.updateTaskStatus(taskId, status); // Call API
-          // Local update will happen via SignalR or optimistic update here
-          setTasks(prev =>
-            prev.map(task =>
-              task.id === taskId
-                ? (() => {
-                  // Maintain delay history without overwriting previous entries
-                  let delayHistory: TaskDelayEntry[] = task.delayHistory ?? [];
-    
-                  if (status === 'Delayed' && delayReason) {
-                    const entryDate = delayDate ?? new Date();
-                    const newEntry: TaskDelayEntry = {
-                      reason: delayReason,
-                      date: entryDate,
-                    };
-                    delayHistory = [...delayHistory, newEntry];
-    
-                    return {
-                      ...task,
-                      status,
-                      delayHistory,
-                      delayReason: newEntry.reason,
-                      delayDate: newEntry.date,
-                    };
-                  }
-    
-                  const latestEntry = delayHistory[delayHistory.length - 1];
-    
-                  return {
-                    ...task,
-                    status,
-                    delayHistory,
-                    delayReason: latestEntry ? latestEntry.reason : undefined,
-                    delayDate: latestEntry ? latestEntry.date : undefined,
-                  };
-                })()
-                : task
-            )
-          );
-      } catch (error) {
-          console.error("Failed to update task status", error);
-      }
+    (taskId: string, status: TaskStatus, delayReason?: string, delayDate?: Date) => {
+      setTasks(prev =>
+        prev.map(task =>
+          task.id === taskId
+            ? (() => {
+              // Maintain delay history without overwriting previous entries
+              let delayHistory: TaskDelayEntry[] = task.delayHistory ?? [];
+
+              if (status === 'Delayed' && delayReason) {
+                const entryDate = delayDate ?? new Date();
+                const newEntry: TaskDelayEntry = {
+                  reason: delayReason,
+                  date: entryDate,
+                };
+                delayHistory = [...delayHistory, newEntry];
+
+                return {
+                  ...task,
+                  status,
+                  delayHistory,
+                  // Keep single-value fields in sync with latest entry for existing UI
+                  delayReason: newEntry.reason,
+                  delayDate: newEntry.date,
+                };
+              }
+
+              // For non-delayed status updates, preserve full history and latest displayed values
+              const latestEntry = delayHistory[delayHistory.length - 1];
+
+              return {
+                ...task,
+                status,
+                delayHistory,
+                delayReason: latestEntry ? latestEntry.reason : undefined,
+                delayDate: latestEntry ? latestEntry.date : undefined,
+              };
+            })()
+            : task
+        )
+      );
     },
     []
   );
 
   const addTaskComment = useCallback(async (taskId: string, comment: Omit<TaskComment, 'id' | 'timestamp'>) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (!task) return;
-
+    const newComment: TaskComment = {
+      ...comment,
+      id: `comment-${Date.now()}`,
+      timestamp: new Date(),
+    };
+    
+    // Save to backend first
     try {
-        await taskService.addTaskComment(task, comment.text);
-        // We rely on SignalR 'TaskUpdated' event to refresh the UI
+      await taskService.addComment(taskId, comment.content, comment.userName);
     } catch (error) {
-        console.error("Failed to add task comment", error);
+      console.error('Failed to save comment to backend:', error);
+      // Continue with local update even if backend fails
     }
-  }, [tasks]);
+    
+    // Update local state
+    setTasks(prev =>
+      prev.map(task =>
+        task.id === taskId
+          ? { ...task, comments: [...task.comments, newComment] }
+          : task
+      )
+    );
+  }, []);
 
   const updateTaskDetails = useCallback(
     (
@@ -333,6 +242,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               ...updates,
             }
             : task
+        )
+      );
+    },
+    []
+  );
+
+  const updateIncident = useCallback(
+    (incidentId: string, updates: Partial<Incident>) => {
+      setIncidents(prevIncidents =>
+        prevIncidents.map(incident =>
+          incident.id === incidentId
+            ? { ...incident, ...updates }
+            : incident
         )
       );
     },
@@ -434,6 +356,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateTaskDetails,
         getFilteredIncidents,
         getFilteredTasks,
+        updateIncident,
       }}
     >
       {children}

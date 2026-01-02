@@ -23,11 +23,12 @@ export const Header: React.FC = () => {
 
     React.useEffect(() => {
         fetchApi<any>('/users/me')
-            .then(data => {
-                const role = data.role?.toLowerCase();
-                const isAdmin = role === 'admin' || role === 'systemadmin';
-                const isSupervisor = role === 'supervisor' || role === 'safetyofficer';
-                setRealRole({ isAdmin, isSupervisor });
+            .then(user => {
+                const role = user.role?.toLowerCase();
+                setRealRole({
+                    isAdmin: role === 'admin' || role === 'systemadmin',
+                    isSupervisor: role === 'supervisor' || role === 'safetyofficer'
+                });
             })
             .catch(console.error);
     }, []);

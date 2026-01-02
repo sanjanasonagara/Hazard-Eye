@@ -10,8 +10,6 @@ export interface LocationDto {
     polygonCoordinates?: string;
     type?: string;
     isActive: boolean;
-    parentId?: number;
-    parentName?: string;
 }
 
 export const locationService = {
@@ -20,6 +18,7 @@ export const locationService = {
             const dtos = await fetchApi<LocationDto[]>('/locations');
             return dtos.map(mapDtoToLocation);
         } catch (error) {
+            console.error('Failed to fetch locations:', error);
             console.error('Failed to fetch locations:', error);
             throw error;
         }
@@ -40,11 +39,16 @@ export const locationService = {
     },
 
     updateLocation: async (id: string, updates: Partial<Omit<Location, 'id'>>): Promise<Location> => {
+        // Fetch existing to merge
         const current = await locationService.getLocation(id);
+
+        // Merge updates
         const updated: Location = {
             ...current,
             ...updates
         };
+
+        // Send full update
         return locationService.updateLocationFull(updated);
     },
 
@@ -64,6 +68,9 @@ export const locationService = {
     }
 };
 
+// Helper for Fallback (Mock)
+
+
 const mapDtoToLocation = (dto: LocationDto): Location => ({
     id: dto.id.toString(),
     name: dto.name,
@@ -71,13 +78,11 @@ const mapDtoToLocation = (dto: LocationDto): Location => ({
     longitude: dto.longitude,
     active: dto.isActive,
     description: dto.description,
-    type: dto.type as any,
-    parentLocationId: dto.parentId?.toString(),
-    parentLocationName: dto.parentName,
+    type: dto.type,
     polygonCoordinates: dto.polygonCoordinates ? JSON.parse(dto.polygonCoordinates) : undefined
 });
 
-const mapLocationToDto = (loc: Partial<Location>): any => ({
+const mapLocationToDto = (loc: Partial<Location> & { name?: string, latitude?: number, longitude?: number }): any => ({
     id: loc.id ? parseInt(loc.id) : 0,
     name: loc.name,
     description: loc.description || '',
@@ -85,6 +90,5 @@ const mapLocationToDto = (loc: Partial<Location>): any => ({
     longitude: loc.longitude,
     isActive: loc.active !== undefined ? loc.active : true,
     type: loc.type,
-    parentId: loc.parentLocationId ? parseInt(loc.parentLocationId) : null,
     polygonCoordinates: loc.polygonCoordinates ? JSON.stringify(loc.polygonCoordinates) : null
 });

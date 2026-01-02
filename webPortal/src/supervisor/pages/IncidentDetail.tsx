@@ -4,7 +4,8 @@ import {
   ArrowLeft,
   Download,
   Calendar,
-  Maximize2
+  Maximize2,
+  CheckCheck
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Card, CardBody } from '../components/UI/Card';
@@ -20,7 +21,7 @@ import { incidentService } from '../../shared/services/incidentService';
 export const IncidentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { state, getFilteredTasks } = useApp();
+  const { state, getFilteredTasks, updateIncident } = useApp();
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'tasks'>('overview');
@@ -49,6 +50,20 @@ export const IncidentDetail: React.FC = () => {
     generateIncidentReport(incident);
   };
 
+  const handleMarkComplete = async () => {
+    if (window.confirm('This will verify and close this incident as resolved. Continue?')) {
+      try {
+        // Update status to Closed in the backend
+        await incidentService.updateIncidentStatus(incident.id, 'Closed');
+        // Update local state
+        updateIncident(incident.id, { status: 'Closed' });
+      } catch (error) {
+        alert('Failed to update incident status. Please try again.');
+        console.error('Error updating incident:', error);
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -73,23 +88,18 @@ export const IncidentDetail: React.FC = () => {
           </Button>
           {state.currentUser.role === 'supervisor' && (
             <>
-                {incident.status !== 'Resolved' && incident.status !== 'Closed' && (
-                     <Button 
-                        variant="secondary"
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                        onClick={async () => {
-                            if(confirm('Are you sure you want to close this incident?')) {
-                                await incidentService.updateIncident(incident.id, { status: 'Resolved' });
-                                // SignalR will update UI, or we can force refresh if needed
-                            }
-                        }}
-                     >
-                        Close Incident
-                     </Button>
-                )}
-                <Button onClick={() => setShowTaskModal(true)}>
-                  Create Task
+              {incident.status !== 'Closed' && incident.status !== 'Resolved' && (
+                <Button 
+                  onClick={handleMarkComplete}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <CheckCheck className="w-4 h-4 mr-2" />
+                  Mark Complete
                 </Button>
+              )}
+              <Button onClick={() => setShowTaskModal(true)}>
+                Create Task
+              </Button>
             </>
           )}
         </div>

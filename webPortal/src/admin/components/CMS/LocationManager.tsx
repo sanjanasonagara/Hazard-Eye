@@ -73,9 +73,7 @@ export const LocationManager = () => {
         latitude: REFINERY_CENTER_LAT,
         longitude: REFINERY_CENTER_LNG,
         active: true,
-        quadrant: undefined,
-        type: 'Plant',
-        parentLocationId: undefined
+        quadrant: undefined
     });
 
     const filteredLocations = locations.filter(loc =>
@@ -88,9 +86,7 @@ export const LocationManager = () => {
             latitude: REFINERY_CENTER_LAT,
             longitude: REFINERY_CENTER_LNG,
             active: true,
-            quadrant: undefined,
-            type: 'Plant',
-            parentLocationId: undefined
+            quadrant: undefined
         });
         setEditingLocation(null);
         setIsCreating(true);
@@ -103,9 +99,7 @@ export const LocationManager = () => {
             latitude: loc.latitude,
             longitude: loc.longitude,
             active: loc.active,
-            quadrant: loc.quadrant,
-            type: loc.type || 'Plant',
-            parentLocationId: loc.parentLocationId
+            quadrant: loc.quadrant
         });
         setEditingLocation(loc);
         setIsCreating(true);
@@ -279,36 +273,6 @@ export const LocationManager = () => {
                                                 value={formData.name}
                                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                                             />
-                                        </div>
-
-                                        <div style={styles.formGroup}>
-                                            <label style={styles.label}>Type</label>
-                                            <select
-                                                style={styles.input}
-                                                value={formData.type}
-                                                onChange={e => setFormData({ ...formData, type: e.target.value as any })}
-                                            >
-                                                <option value="Plant">Plant</option>
-                                                <option value="Unit">Unit</option>
-                                                <option value="Area">Area</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                        </div>
-
-                                        <div style={styles.formGroup}>
-                                            <label style={styles.label}>Parent Location</label>
-                                            <select
-                                                style={styles.input}
-                                                value={formData.parentLocationId || ''}
-                                                onChange={e => setFormData({ ...formData, parentLocationId: e.target.value || undefined })}
-                                            >
-                                                <option value="">None (Top Level)</option>
-                                                {locations
-                                                   .filter(l => !editingLocation || l.id !== editingLocation.id) // Prevent circular ref
-                                                   .map(l => (
-                                                    <option key={l.id} value={l.id}>{l.name} ({l.type})</option>
-                                                ))}
-                                            </select>
                                         </div>
 
                                         <div style={styles.formGroup}>

@@ -1,4 +1,3 @@
-/* Base imports must come first */
 @import "./admin/index.css";
 @import "./supervisor/index.css";
 
@@ -37,3 +36,5 @@
     font-family: "Inter", system-ui, -apple-system, sans-serif;
   }
 }
+
+/* Import Admin specifics - we might need to scope these better later */

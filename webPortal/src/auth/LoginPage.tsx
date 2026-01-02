@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { API_BASE_URL } from '../shared/services/api';
 import { Shield, Mail, Lock, Eye, EyeOff, ArrowRight, Github } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
@@ -22,7 +21,7 @@ export const LoginPage: React.FC = () => {
         // Mock Login removed to ensure real backend authentication is always used.
 
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            const response = await fetch('http://localhost:5200/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -190,33 +189,7 @@ export const LoginPage: React.FC = () => {
                             {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
                         </button>
 
-                        <div className="relative py-4">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-slate-800"></div>
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-slate-900 px-4 text-slate-500">Or continue with</span>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <button type="button" className="flex items-center justify-center gap-2 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white hover:bg-slate-800 transition-all active:scale-[0.98]">
-                                <img src="https://www.svgrepo.com/show/355037/google.svg" alt="google" className="w-5 h-5" />
-                                <span className="text-sm font-medium">Google</span>
-                            </button>
-                            <button type="button" className="flex items-center justify-center gap-2 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white hover:bg-slate-800 transition-all active:scale-[0.98]">
-                                <Github className="w-5 h-5" />
-                                <span className="text-sm font-medium">Github</span>
-                            </button>
-                        </div>
                     </form>
-
-                    <p className="mt-10 text-center text-slate-400">
-                        Don't have an account?{' '}
-                        <Link to="/signup" className="text-blue-400 font-bold hover:text-blue-300 transition-colors underline underline-offset-4">
-                            Create Account
-                        </Link>
-                    </p>
                 </div>
             </div>
 

@@ -112,7 +112,7 @@ export const RepeatIncidentsChart: React.FC<RepeatIncidentsChartProps> = ({ inci
         </button>
       </div>
 
-      <div className="h-72 w-full">
+      <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
           {view === 'type' ? (
             <BarChart data={repeatDataByType} margin={{ top: 10, right: 24, left: 8, bottom: 40 }}>
@@ -135,7 +135,6 @@ export const RepeatIncidentsChart: React.FC<RepeatIncidentsChartProps> = ({ inci
                 }}
                 formatter={(value: number) => [
                   `${value} repeat incident${value !== 1 ? 's' : ''}`,
-// @ts-ignore
                   'Count',
                 ]}
               />
@@ -169,7 +168,6 @@ export const RepeatIncidentsChart: React.FC<RepeatIncidentsChartProps> = ({ inci
                 }}
                 formatter={(value: number, _name: string, props: any) => [
                   `${value} incident${value !== 1 ? 's' : ''} (${props.payload.riskLevel} Risk)`,
-// @ts-ignore
                   'Count',
                 ]}
               />

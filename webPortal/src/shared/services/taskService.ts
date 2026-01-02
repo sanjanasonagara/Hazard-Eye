@@ -1,28 +1,22 @@
 import { fetchApi } from './api';
-import { Task, TaskStatus } from '../../supervisor/types';
+import { Task, Priority, TaskStatus } from '../../supervisor/types';
 
 export interface WorkTaskDto {
     id: number;
+    title: string;
     incidentId?: number;
+    departmentId: number;
+    departmentName: string;
     assignedToUserId: number;
     assignedToName: string;
     description: string;
     status: string;
+    priority: number;
     createdAt: string;
     dueDate?: string;
     completedAt?: string;
-    comments: string;
-    plantLocationId?: number;
-    plantLocationName?: string;
-    areaLocationId?: number;
-    areaLocationName?: string;
-}
-
-export interface CreateTaskDto {
-    incidentId?: number;
-    assignedToUserId: number;
-    description: string;
-    dueDate?: string;
+    area?: string;
+    plant?: string;
 }
 
 export const taskService = {
@@ -36,36 +30,37 @@ export const taskService = {
         }
     },
 
-    createTask: async (task: CreateTaskDto): Promise<Task> => {
-        const response = await fetchApi<WorkTaskDto>('/tasks', {
-            method: 'POST',
-            body: JSON.stringify(task)
-        });
-        return mapDtoToTask(response);
-    },
-
-    updateTaskStatus: async (taskId: string, status: string): Promise<void> => {
-        await fetchApi(`/tasks/${taskId}/status`, {
-            method: 'PUT',
-            body: JSON.stringify(status)
-        });
-    },
-
-    addTaskComment: async (task: Task, commentText: string): Promise<void> => {
-        const timestamp = new Date().toISOString();
-        const updatedComments = [...task.comments, { text: commentText, timestamp }];
-        
-        await fetchApi('/tasks/sync', {
-            method: 'POST',
-            body: JSON.stringify({
-                id: task.id,
+    createTask: async (task: Partial<Task>): Promise<Task> => {
+        try {
+            const payload = {
+                incidentId: parseInt(task.incidentId || '0'),
+                assignedToUserId: parseInt(task.assignedTo || '0'),
                 description: task.description,
-                status: task.status,
-                dueDate: task.dueDate.toISOString(),
-                comments: JSON.stringify(updatedComments),
-                assignee: task.assignedToName
-            })
-        });
+                dueDate: task.dueDate?.toISOString(),
+                area: task.area,
+                plant: task.plant
+            };
+            const dto = await fetchApi<WorkTaskDto>('/tasks', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            return mapDtoToTask(dto);
+        } catch (error) {
+            console.error('Failed to create task:', error);
+            throw error;
+        }
+    },
+
+    addComment: async (taskId: string, text: string, author: string): Promise<void> => {
+        try {
+            await fetchApi(`/tasks/${taskId}/comments`, {
+                method: 'POST',
+                body: JSON.stringify({ text, author })
+            });
+        } catch (error) {
+            console.error('Failed to add comment:', error);
+            throw error;
+        }
     }
 };
 
@@ -73,13 +68,11 @@ const mapDtoToTask = (dto: WorkTaskDto): Task => {
     return {
         id: dto.id.toString(),
         incidentId: dto.incidentId?.toString(),
-        description: dto.description || 'Task #' + dto.id,
-        area: dto.areaLocationName || 'General',
-        plant: dto.plantLocationName || 'Main Plant',
-        plantLocationId: dto.plantLocationId,
-        areaLocationId: dto.areaLocationId,
+        description: dto.description || dto.title,
+        area: dto.area || dto.departmentName || 'Main Site',
+        plant: dto.plant || 'General',
         dueDate: dto.dueDate ? new Date(dto.dueDate) : new Date(),
-        priority: 'Medium', // Default as backend doesn't store priority yet
+        priority: mapPriority(dto.priority),
         status: dto.status as TaskStatus,
         precautions: 'Refer to safety guidelines.',
         assignedTo: dto.assignedToUserId.toString(),
@@ -87,13 +80,12 @@ const mapDtoToTask = (dto: WorkTaskDto): Task => {
         createdBy: '0',
         createdByName: 'System',
         createdAt: new Date(dto.createdAt),
-        delayHistory: (dto as any).delayHistory ? (dto as any).delayHistory.map((h: any) => ({
-            ...h,
-            date: new Date(h.date)
-        })) : [],
-        comments: dto.comments ? JSON.parse(dto.comments).map((c: any) => ({
-            ...c,
-            timestamp: new Date(c.timestamp)
-        })) : [],
+        comments: [],
     };
+};
+
+const mapPriority = (p: number): Priority => {
+    if (p >= 3) return 'High';
+    if (p === 2) return 'Medium';
+    return 'Low';
 };

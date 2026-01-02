@@ -185,7 +185,7 @@ const CMS = () => {
                     ))}
                 </div>
 
-                {filter !== 'Locations' && filter !== 'Departments' && filter !== 'Roles' && (
+                {!['Locations', 'Departments', 'Roles'].includes(filter) && (
                     <Button variant="primary" onClick={handleOpenCreate}>
                         <Plus size={16} style={{ marginRight: '0.5rem' }} />
                         Create New
@@ -276,7 +276,7 @@ const CMS = () => {
             )}
 
             {/* Create/Edit Modal (Content) */}
-            {isCreating && filter !== 'Locations' && filter !== 'Departments' && filter !== 'Roles' && (
+            {isCreating && filter !== 'Locations' && (
                 <div style={styles.overlay}>
                     <div style={styles.modal}>
                         <div style={styles.modalHeader}>
